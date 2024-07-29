@@ -1,0 +1,51 @@
+#page
+{
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-width: 100vw;
+}
+
+#content
+{
+    flex: 1;
+    padding: 15px
+}
+
+#navigation-bar 
+{
+    align-items: center;
+    background-color: #dedede;
+    box-shadow: 0 -1px 8px gray;
+    display: flex;
+    justify-content: space-around;
+}
+
+#navigation-bar button 
+{
+    appearance: none;
+    background-color: transparent;
+    border: none;
+    border-radius: 10px;
+    height: 100%;
+    width: 100%;
+    padding: 15px;
+    transition: background-color 0.1s ease-in-out;
+}
+
+#navigation-bar button:active
+{
+    background-color: darkgray; 
+}
+
+#navigation-bar button img
+{
+    height: 32px;
+    width: 32px;
+}
+
+.navigation-items-separator 
+{
+    border-right: 2px solid gray;
+    height: 40px;
+}

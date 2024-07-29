@@ -1,3 +1,24 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
 
-@Body
+<div id="page">
+    <div id="content">
+        @Body
+    </div>
+
+    <div id="navigation-bar">
+        <button @onclick="@(() => NavigationManager.NavigateTo("/"))"><img src="./icons/bonsai_icon.png" /></button>
+        
+        <div class="navigation-items-separator" />
+        
+        <button @onclick="@(() => NavigationManager.NavigateTo("/ToDo"))"><img src="./icons/to_do_icon.png" /></button>
+        
+        <div class="navigation-items-separator" />
+        
+        <button @onclick="@(() => NavigationManager.NavigateTo("/Profile"))"><img src="./icons/profile_icon.png" /></button>
+        
+        <div class="navigation-items-separator" />
+        
+        <button @onclick="@(() => NavigationManager.NavigateTo("/Settings"))"><img src="./icons/settings_icon.png" /></button>
+    </div>
+</div>
