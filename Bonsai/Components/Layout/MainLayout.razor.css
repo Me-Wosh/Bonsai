@@ -6,10 +6,12 @@
     min-width: 100vw;
 }
 
-#content
+#content 
 {
-    flex: 1;
-    padding: 15px
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    padding: 15px;
 }
 
 #navigation-bar 
@@ -30,7 +32,7 @@
     height: 100%;
     width: 100%;
     padding: 15px;
-    transition: background-color 0.1s ease-in-out;
+    transition: background-color 50ms linear;
 }
 
 #navigation-bar button:active

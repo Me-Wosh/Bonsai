@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Bonsai.Components.Pages;
+using Bonsai.Services;
+using Microsoft.Extensions.Logging;
 
 namespace Bonsai;
 
@@ -12,6 +14,14 @@ public static class MauiProgram
             .ConfigureFonts(fonts => { fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular"); });
 
         builder.Services.AddMauiBlazorWebView();
+
+        builder.Services.AddAutoMapper(typeof(MauiProgram).Assembly);
+
+        builder.Services.AddSingleton<BonsaiTree>();
+        
+        builder.Services.AddSingleton<IFileService, FileService>();
+        builder.Services.AddSingleton<ILocationService, LocationService>();
+        builder.Services.AddSingleton<IWeatherService, WeatherService>();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();

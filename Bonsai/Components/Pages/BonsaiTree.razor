@@ -1,3 +1,98 @@
 ﻿@page "/"
+@inject ILocationService LocationService
+@inject IWeatherService WeatherService
 
-<h3>Bonsai Tree</h3>
+<div id="container">
+    <div id="window-container">
+        <img id="weather" src="./images/weather/@_weatherImagePath" />
+        <img id="window" src="./images/window.png" />
+    </div>
+
+    <div id="tree-container">
+        <img src="./images/window.png" />
+    </div>
+</div>
+
+@code
+{
+    private LocationData? _location;
+    private WeatherData _weather = new();
+    private string _weatherImagePath;
+    private bool _isBusy;
+
+    public BonsaiTree()
+    {
+        _weatherImagePath = GetWeatherImagePath();
+    }
+
+    protected override async void OnInitialized()
+    {
+        var locationTimeDifference = DateTime.Now - _location?.LastUpdate;
+        var weatherTimeDifference = DateTime.Now - _weather?.LastUpdate;
+
+        if (_isBusy || locationTimeDifference?.TotalHours < 1 || weatherTimeDifference?.TotalHours < 1)
+        {
+            return;
+        }
+
+        _isBusy = true;
+
+        _location = await LocationService.GetCurrentLocationAsync();
+        _weather = await WeatherService.GetWeatherAsync(_location);
+        _weatherImagePath = GetWeatherImagePath();
+
+        _isBusy = false;
+    }
+
+    private string GetWeatherImagePath()
+    {
+        var weatherType = _weather.WeatherType;
+        var partOfTheDay = GetPartOfTheDay();
+
+        if (weatherType == WeatherType.Sunny && partOfTheDay == DayPart.Night)
+        {
+            return "clear_night.png";
+        }
+        
+        if (weatherType is WeatherType.Sunny or WeatherType.PartlyCloudy)
+        {
+            return weatherType + "_" + partOfTheDay + ".png";
+        }
+
+        var weatherImagePath = _weather.WeatherType;
+
+        if (partOfTheDay == DayPart.Night)
+        {
+            weatherImagePath += "_night";
+        }
+
+        if (weatherType == WeatherType.Cloudy)
+        {
+            return weatherImagePath + ".png";
+        }
+
+        return weatherImagePath + ".gif";
+    }
+
+    private string GetPartOfTheDay()
+    {
+        var currentHour = DateTime.Now.Hour;
+
+        if (currentHour is >= 5 and < 12)
+        {
+            return DayPart.Morning;
+        }
+
+        if (currentHour is >= 12 and < 17)
+        {
+            return DayPart.Afternoon;
+        }
+
+        if (currentHour is >= 17 and < 21)
+        {
+            return DayPart.Evening;
+        }
+
+        return DayPart.Night;
+    }
+}
