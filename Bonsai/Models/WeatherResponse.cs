@@ -2,7 +2,7 @@
 
 public class WeatherResponse
 {
-    public Location Location { get; set; }
+    public LocationResponse Location { get; set; }
     public Current Current { get; set; }
 }
 public class Condition
@@ -15,7 +15,7 @@ public class Current
     public Condition Condition { get; set; }
 }
 
-public class Location
+public class LocationResponse
 {
     public string Name { get; set; }
     public string Region { get; set; }

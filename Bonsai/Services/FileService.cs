@@ -5,7 +5,22 @@ namespace Bonsai.Services;
 
 public class FileService : IFileService
 {
-    public async Task<T?> ReadUserDataAsync<T>(string jsonFileName) where T : UserData
+    public async Task<JsonElement?> ReadRawDataAsync(string jsonFileName)
+    {
+        if (!await FileSystem.Current.AppPackageFileExistsAsync($"{jsonFileName}.json"))
+        {
+            return null;
+        }
+
+        await using var fileStream = await FileSystem.Current.OpenAppPackageFileAsync($"{jsonFileName}.json");
+        
+        using var jsonDocument = JsonDocument.Parse(fileStream);
+        var root = jsonDocument.RootElement.Clone();
+        
+        return root;
+    }
+
+    public async Task<T?> ReadUserDataAsync<T>(string jsonFileName) where T : UserRelatedDataTemplate
     {
         var filePath = Path.Combine(FileSystem.Current.AppDataDirectory, $"{jsonFileName}.json");
 
@@ -21,7 +36,7 @@ public class FileService : IFileService
         return userData;
     }
 
-    public async Task UpdateUserDataAsync<T>(string jsonFileName, T userData) where T : UserData
+    public async Task UpdateUserDataAsync<T>(string jsonFileName, T userData) where T : UserRelatedDataTemplate
     {
         var filePath = Path.Combine(FileSystem.Current.AppDataDirectory, $"{jsonFileName}.json");
         await using var fileStream = File.Create(filePath);

@@ -4,5 +4,5 @@ namespace Bonsai.Services;
 
 public interface IWeatherService
 {
-    Task<WeatherData> GetWeatherAsync(LocationData? locationDto);
+    Task<Weather> GetWeatherAsync(GeoLocation? locationDto);
 }

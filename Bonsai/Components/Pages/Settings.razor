@@ -1,8 +1,26 @@
 ﻿@page "/settings"
+@inject IFileService FileService
 
-<h3>Settings</h3>
+<div id="container">
+    <h1 id="settings-text">Settings</h1>
+
+    <div class="setting" @onclick="OpenSettings">
+        <p>@(_paragraphsContents?.GetProperty("en").GetProperty("locationPermission"))</p>
+        <img src="./icons/external_link_icon.png" />        
+    </div>
+</div>
 
 @code 
 {
+    private JsonElement? _paragraphsContents;
 
+    protected override async void OnInitialized()
+    {
+        _paragraphsContents = await FileService.ReadRawDataAsync("SettingsPageContents");
+    }
+
+    private void OpenSettings()
+    {
+        AppInfo.Current.ShowSettingsUI();
+    }
 }

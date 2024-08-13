@@ -15,17 +15,15 @@ public class LocationService : ILocationService
         _mapper = mapper;
     }
 
-    public async Task<LocationData?> GetCurrentLocationAsync()
+    public async Task<GeoLocationResponse> GetCurrentLocationAsync()
     {
-        var lastLocation = await _fileService.ReadUserDataAsync<LocationData>("location");
+        var lastLocation = await _fileService.ReadUserDataAsync<GeoLocation>("location");
         var timeDifference = DateTime.Now - lastLocation?.LastUpdate;
 
         if (timeDifference?.TotalHours < 1)
         {
-            return lastLocation;
+            return new GeoLocationResponse(GeoLocationResponseStatus.Success, lastLocation);
         }
-
-        LocationData? location = null;
 
         try
         {
@@ -34,9 +32,26 @@ public class LocationService : ILocationService
 
             if (result != null)
             {
-                location = _mapper.Map<LocationData>(result);
-                await _fileService.UpdateUserDataAsync<LocationData>("location", location);
+                var location = _mapper.Map<GeoLocation>(result);
+                await _fileService.UpdateUserDataAsync<GeoLocation>("location", location);
+                
+                return new GeoLocationResponse(GeoLocationResponseStatus.Success, location);
             }
+        }
+
+        catch (FeatureNotSupportedException)
+        {
+            return new GeoLocationResponse(GeoLocationResponseStatus.NotSupported);
+        }
+
+        catch(FeatureNotEnabledException)
+        {
+            return new GeoLocationResponse(GeoLocationResponseStatus.NotEnabled);
+        }
+
+        catch(PermissionException)
+        {
+            return new GeoLocationResponse(GeoLocationResponseStatus.NoPermission);
         }
 
         catch (Exception exception)
@@ -44,6 +59,6 @@ public class LocationService : ILocationService
             Debug.WriteLine(exception);
         }
 
-        return location;
+        return new GeoLocationResponse(GeoLocationResponseStatus.Fail);
     }
 }

@@ -1,0 +1,48 @@
+#container
+{
+    display: flex;
+    flex-direction: column;
+    height: 100%; 
+}
+
+#container button:active
+{
+    background-color: var(--light-green);
+}
+
+#settings-text
+{
+    background-color: var(--green);
+    border-bottom: 4px solid black;
+    font-weight: bold;
+    padding-bottom: 15px;
+    text-align: center;
+}
+
+.setting
+{
+    align-items: center;
+    border-bottom: 2px solid black;
+    display: flex;
+    justify-content: space-between;
+    margin-left: 15px;
+    margin-right: 15px;
+    padding: 20px;
+}
+
+.setting:last-of-type
+{
+    border: none;
+}
+
+.setting p
+{
+    font-size: 21px;
+    font-weight: bold;
+}
+
+.setting img
+{
+    height: 32px;
+    width: 32px;
+}

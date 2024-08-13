@@ -11,16 +11,18 @@
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
-    padding: 15px;
 }
 
 #navigation-bar 
 {
     align-items: center;
-    background-color: #dedede;
-    box-shadow: 0 -1px 8px gray;
+    background-color: var(--green);
+    border-top: 4px solid black;
+    bottom: 0;
     display: flex;
     justify-content: space-around;
+    position: sticky;
+    width: 100%;
 }
 
 #navigation-bar button 
@@ -37,7 +39,7 @@
 
 #navigation-bar button:active
 {
-    background-color: darkgray; 
+    background-color: var(--greener); 
 }
 
 #navigation-bar button img
@@ -48,6 +50,6 @@
 
 .navigation-items-separator 
 {
-    border-right: 2px solid gray;
+    border-right: 3px solid black;
     height: 40px;
 }

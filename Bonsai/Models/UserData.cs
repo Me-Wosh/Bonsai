@@ -1,6 +1,10 @@
 ﻿namespace Bonsai.Models;
 
-public abstract class UserData
+public class UserData : UserRelatedDataTemplate
 {
-    public DateTime? LastUpdate { get; set; }
+    public bool GeoLocationUsageAcknowledged { get; set; }
+    public byte BonsaiTreeStage { get; set; }
+    public byte DaysBeforeWithering { get; set; }
+    public DateTime? LastWatering { get; set; }
+    public uint Streak { get; set; }
 }

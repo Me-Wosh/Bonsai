@@ -1,4 +1,5 @@
 ﻿@page "/"
+@inject IFileService FileService
 @inject ILocationService LocationService
 @inject IWeatherService WeatherService
 
@@ -13,12 +14,46 @@
     </div>
 </div>
 
+@if (_paragraphsContents != null)
+{
+    @if (_showLocationInfoModal)
+    {
+        <InfoModal
+            HeaderText="@(_paragraphsContents?.GetProperty("en").GetProperty("locationUsage").GetProperty("heading").ToString())"
+            BodyText="@(_paragraphsContents?.GetProperty("en").GetProperty("locationUsage").GetProperty("body").ToString())"
+            FooterButtonText="@(_paragraphsContents?.GetProperty("en").GetProperty("locationUsage").GetProperty("button").ToString())" 
+            OnAnimationEndedCallback="HideLocationInfoModal" 
+        />
+    }
+
+    @if (_showLocationTurnedOffModal)
+    {
+        <InfoModal 
+            HeaderText="@(_paragraphsContents?.GetProperty("en").GetProperty("locationTurnedOff").GetProperty("heading").ToString())"
+            BodyText="@(_paragraphsContents?.GetProperty("en").GetProperty("locationTurnedOff").GetProperty("body").ToString())"
+            OnAnimationEndedCallback="HideLocationTurnedOffModal"
+        />
+    }
+
+    @if (_showLocationRejectionModal)
+    {
+        <InfoModal
+            HeaderText="@(_paragraphsContents?.GetProperty("en").GetProperty("locationRejection").GetProperty("heading").ToString())"
+            BodyText="@(_paragraphsContents?.GetProperty("en").GetProperty("locationRejection").GetProperty("body").ToString())"
+        />
+    }
+}
+
 @code
 {
-    private LocationData? _location;
-    private WeatherData _weather = new();
+    private JsonElement? _paragraphsContents;
+    private UserData? _userData;
+    private Weather _weather = new();
     private string _weatherImagePath;
     private bool _isBusy;
+    private bool _showLocationInfoModal;
+    private bool _showLocationTurnedOffModal;
+    private bool _showLocationRejectionModal;
 
     public BonsaiTree()
     {
@@ -27,18 +62,57 @@
 
     protected override async void OnInitialized()
     {
-        var locationTimeDifference = DateTime.Now - _location?.LastUpdate;
         var weatherTimeDifference = DateTime.Now - _weather?.LastUpdate;
 
-        if (_isBusy || locationTimeDifference?.TotalHours < 1 || weatherTimeDifference?.TotalHours < 1)
+        if (_isBusy || _showLocationInfoModal || weatherTimeDifference?.TotalHours < 1 || _paragraphsContents != null)
         {
             return;
         }
 
+        _paragraphsContents = await FileService.ReadRawDataAsync("BonsaiTreePageContents");
+        _userData = await FileService.ReadUserDataAsync<UserData>("user");
+
+        if (_userData == null)
+        {
+            _showLocationInfoModal = true;
+            StateHasChanged();
+            return;
+        }
+
+        await GetWeatherAsync();
+    }
+
+    private async Task GetWeatherAsync()
+    {
         _isBusy = true;
 
-        _location = await LocationService.GetCurrentLocationAsync();
-        _weather = await WeatherService.GetWeatherAsync(_location);
+        var locationResponse = await LocationService.GetCurrentLocationAsync();
+
+        if (locationResponse.Status == GeoLocationResponseStatus.NotEnabled)
+        {
+            _showLocationTurnedOffModal = true;
+            _isBusy = false;
+
+            return;
+        }
+
+        if (_userData == null)
+        {
+            if (locationResponse.Status == GeoLocationResponseStatus.NoPermission)
+            {
+                _showLocationRejectionModal = true;
+            }
+
+            _userData = new UserData
+            {
+                LastUpdate = DateTime.Now,
+                GeoLocationUsageAcknowledged = true
+            };
+
+            await FileService.UpdateUserDataAsync<UserData>("user", _userData);
+        }
+
+        _weather = await WeatherService.GetWeatherAsync(locationResponse.GeoLocation);
         _weatherImagePath = GetWeatherImagePath();
 
         _isBusy = false;
@@ -53,7 +127,7 @@
         {
             return "clear_night.png";
         }
-        
+
         if (weatherType is WeatherType.Sunny or WeatherType.PartlyCloudy)
         {
             return weatherType + "_" + partOfTheDay + ".png";
@@ -94,5 +168,27 @@
         }
 
         return DayPart.Night;
+    }
+
+    private async Task HideLocationInfoModal(AnimationEndedEventArgs eventArgs)
+    {
+        if (eventArgs.AnimationName != "fadeout")
+        {
+            return;
+        }
+
+        _showLocationInfoModal = false;
+
+        await GetWeatherAsync(); 
+    }
+
+    private void HideLocationTurnedOffModal(AnimationEndedEventArgs eventArgs)
+    {
+        if (eventArgs.AnimationName != "fadeout")
+        {
+            return;
+        }
+
+        _showLocationTurnedOffModal = false;
     }
 }

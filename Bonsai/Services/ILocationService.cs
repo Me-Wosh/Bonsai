@@ -4,5 +4,5 @@ namespace Bonsai.Services;
 
 public interface ILocationService
 {
-    Task<LocationData?> GetCurrentLocationAsync();
+    Task<GeoLocationResponse> GetCurrentLocationAsync();
 }

@@ -16,8 +16,6 @@ public static class MauiProgram
         builder.Services.AddMauiBlazorWebView();
 
         builder.Services.AddAutoMapper(typeof(MauiProgram).Assembly);
-
-        builder.Services.AddSingleton<BonsaiTree>();
         
         builder.Services.AddSingleton<IFileService, FileService>();
         builder.Services.AddSingleton<ILocationService, LocationService>();
