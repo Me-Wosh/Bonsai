@@ -1,5 +1,4 @@
-﻿using Bonsai.Components.Pages;
-using Bonsai.Services;
+﻿using Bonsai.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Bonsai;
@@ -16,8 +15,10 @@ public static class MauiProgram
         builder.Services.AddMauiBlazorWebView();
 
         builder.Services.AddAutoMapper(typeof(MauiProgram).Assembly);
-        
-        builder.Services.AddSingleton<IFileService, FileService>();
+
+        builder.Services.AddSingleton<AppState>();
+
+        builder.Services.AddTransient<IFileService, FileService>();
         builder.Services.AddSingleton<ILocationService, LocationService>();
         builder.Services.AddSingleton<IWeatherService, WeatherService>();
 

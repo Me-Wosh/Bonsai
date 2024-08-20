@@ -18,7 +18,7 @@ public class WeatherService : IWeatherService
         _mapper = mapper;
     }
 
-    public async Task<Weather> GetWeatherAsync(GeoLocation? geoLocation)
+    public async Task<Weather> GetWeatherAsync(GeoLocation? location)
     {
         var lastWeather = await _fileService.ReadUserDataAsync<Weather>("weather");
         var timeDifference = DateTime.Now - lastWeather?.LastUpdate;
@@ -30,7 +30,7 @@ public class WeatherService : IWeatherService
 
         var weather = new Weather();
 
-        if (geoLocation == null)
+        if (location == null)
         {
             return weather;
         }
@@ -39,7 +39,7 @@ public class WeatherService : IWeatherService
 
         var builder = new UriBuilder("https://api.weatherapi.com/v1/forecast.json");
         builder.Query += $"key={apiKey}";
-        builder.Query += $"&q={geoLocation.Latitude.ToString(CultureInfo.InvariantCulture)},{geoLocation.Longitude.ToString(CultureInfo.InvariantCulture)}";
+        builder.Query += $"&q={location.Latitude.ToString(CultureInfo.InvariantCulture)},{location.Longitude.ToString(CultureInfo.InvariantCulture)}";
         builder.Query += "&days=1";
 
         try

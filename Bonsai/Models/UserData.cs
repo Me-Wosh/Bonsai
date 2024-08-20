@@ -1,6 +1,6 @@
 ﻿namespace Bonsai.Models;
 
-public class UserData : UserRelatedDataTemplate
+public class UserData : UserRelatedData
 {
     public bool GeoLocationUsageAcknowledged { get; set; }
     public byte BonsaiTreeStage { get; set; }

@@ -20,7 +20,7 @@ public class FileService : IFileService
         return root;
     }
 
-    public async Task<T?> ReadUserDataAsync<T>(string jsonFileName) where T : UserRelatedDataTemplate
+    public async Task<T?> ReadUserDataAsync<T>(string jsonFileName) where T : UserRelatedData
     {
         var filePath = Path.Combine(FileSystem.Current.AppDataDirectory, $"{jsonFileName}.json");
 
@@ -36,7 +36,7 @@ public class FileService : IFileService
         return userData;
     }
 
-    public async Task UpdateUserDataAsync<T>(string jsonFileName, T userData) where T : UserRelatedDataTemplate
+    public async Task UpdateUserDataAsync<T>(string jsonFileName, T userData) where T : UserRelatedData
     {
         var filePath = Path.Combine(FileSystem.Current.AppDataDirectory, $"{jsonFileName}.json");
         await using var fileStream = File.Create(filePath);
