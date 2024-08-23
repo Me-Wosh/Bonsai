@@ -7,18 +7,63 @@
     </div>
 
     <div id="navigation-bar">
-        <button @onclick="@(() => NavigationManager.NavigateTo("/"))"><img src="./icons/bonsai_icon.png" /></button>
+        <button @onclick="@(() => NavigationManager.NavigateTo("/"))">
+            <div class="navigation-icon-container">
+                <img 
+                    src="./icons/bonsai_icon.png" 
+                    style="@(_currentPage == "/" ? "height: 40px; width: 40px;" : "")" 
+                />
+            </div>
+        </button>
         
         <div class="navigation-items-separator" />
         
-        <button @onclick="@(() => NavigationManager.NavigateTo("/ToDo"))"><img src="./icons/to_do_icon.png" /></button>
+        <button @onclick="@(() => NavigationManager.NavigateTo("/ToDo"))">
+            <div class="navigation-icon-container">
+                <img 
+                    src="./icons/to_do_icon.png" 
+                    style="@(_currentPage == "/ToDo" ? "height: 40px; width: 40px;" : "")" 
+                />
+            </div>
+        </button>
         
         <div class="navigation-items-separator" />
         
-        <button @onclick="@(() => NavigationManager.NavigateTo("/Profile"))"><img src="./icons/profile_icon.png" /></button>
+        <button @onclick="@(() => NavigationManager.NavigateTo("/Profile"))">
+            <div class="navigation-icon-container">
+                <img 
+                    src="./icons/profile_icon.png" 
+                    style="@(_currentPage == "/Profile" ? "height: 40px; width: 40px;" : "")" 
+                />
+            </div>
+        </button>
         
         <div class="navigation-items-separator" />
         
-        <button @onclick="@(() => NavigationManager.NavigateTo("/Settings"))"><img src="./icons/settings_icon.png" /></button>
+        <button @onclick="@(() => NavigationManager.NavigateTo("/Settings"))">
+            <div class="navigation-icon-container">
+                <img 
+                    src="./icons/settings_icon.png" 
+                    style="@(_currentPage == "/Settings" ? "height: 40px; width: 40px;" : "")"  
+                />
+            </div>
+        </button>
     </div>
 </div>
+
+@code
+{
+    private string _currentPage = "/";
+
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs eventArgs)
+    {
+        // cut the localhost part from the uri
+        _currentPage = eventArgs.Location.Substring(eventArgs.Location.LastIndexOf("/"));
+        StateHasChanged();
+    }
+}

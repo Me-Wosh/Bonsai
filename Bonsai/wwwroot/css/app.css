@@ -14,18 +14,41 @@
 
 *
 {
-    box-sizing: border-box;
     font-family: "Poppins", sans-serif;
-    font-weight: 450;
+    font-weight: 450; 
     margin: 0;
     padding: 0;
     user-select: none;
 }
 
+html, body
+{
+    height: 100%;
+    width: 100%;
+}
+
+#app
+{
+    height: 100%;
+    width: 100%;
+}
+
+button
+{
+    appearance: none;
+    background-color: transparent;
+    border: none;
+}
+
+.icon
+{
+    height: 32px;
+    width: 32px;
+}
+
 .modal
 {
     align-items: center;
-    backdrop-filter: blur(10px);
     display: flex;
     justify-content: center;
     height: 100%;
@@ -45,10 +68,8 @@
     max-width: 450px;
 }
 
-
 .default-button
 {
-    appearance: none;
     background-color: var(--green);
     border: 3px solid black;
     border-radius: 50px;

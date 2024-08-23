@@ -2,14 +2,14 @@
 {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    min-width: 100vw;
+    height: 100%;
+    width: 100%;
 }
 
 #content 
 {
     display: flex;
-    flex: 1 1 auto;
+    flex: 1;
     flex-direction: column;
 }
 
@@ -27,24 +27,32 @@
 
 #navigation-bar button 
 {
+    align-items: center;
     appearance: none;
     background-color: transparent;
     border: none;
     border-radius: 10px;
+    display: flex;
     height: 100%;
-    width: 100%;
+    justify-content: center;
     padding: 15px;
     transition: background-color 50ms linear;
+    width: 100%;
 }
 
-#navigation-bar button:active
+.navigation-icon-container
 {
-    background-color: var(--greener); 
+    align-items: center;
+    display: flex;
+    height: 36px;
+    justify-content: center;
+    width: 36px;
 }
 
-#navigation-bar button img
+#navigation-bar img
 {
     height: 32px;
+    transition: all 125ms ease-in;
     width: 32px;
 }
 

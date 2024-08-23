@@ -3,8 +3,8 @@
     background-color: var(--green);
     align-items: center;
     border-bottom: 4px solid black;
-    border-top-left-radius: 27px;
-    border-top-right-radius: 27px;
+    border-top-left-radius: 26px;
+    border-top-right-radius: 26px;
     display: flex; 
     justify-content: space-between;
     padding: 20px;
@@ -37,7 +37,7 @@
 
 .fadein
 {
-    animation: 700ms fadein;
+    animation: 700ms forwards fadein;
 }
 
 .fadeout
@@ -59,22 +59,28 @@
 {
     from
     {
-        backdrop-filter: none;
+        background-color: transparent;
         display: none;
     }
 
     to
     {
-        backdrop-filter: blur(10px);
+        background-color: rgba(0, 0, 0, 0.75);
         display: flex;
     }
 }
 
 @keyframes fadeout
 {
+    from
+    {
+        background-color: rgba(0, 0, 0, 0.75);
+        display: flex;
+    }
+
     to
     {
-        backdrop-filter: none;
+        background-color: transparent;
         display: none;
     }
 }

@@ -2,37 +2,37 @@
 {
     border-top: 4px solid black;
     display: flex;
-    flex: 1 1 auto;
+    flex: 1;
     flex-direction: column;
-    height: 100%;
     padding: 15px 15px 30px 15px;
 }
 
-#window-container 
+#window-section 
 {
     align-items: flex-end;
     display: flex;
     flex: 1;
-    height: 50%;
     justify-content: flex-start;
+}
+
+#window-container
+{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    row-gap: 5px;
 }
 
 #weather
 {
     position: absolute;
-    z-index: 0;
+    z-index: -1;
 }
 
-#window
-{
-    z-index: 1;
-}
-
-#tree-container
+#tree-section
 {
     align-items: flex-end;
     display: flex;
     flex: 1;
-    height: 50%;
     justify-content: center;
 }
