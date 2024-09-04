@@ -1,0 +1,27 @@
+﻿@inherits ModalBase
+
+<div class="modal fade@_animationType" @onanimationended="OnAnimationEndedCallback">
+    <div class="modal-content slide@_animationType">
+        <div class="modal-header">
+            <p class="header-text">@HeaderText</p>
+        </div>
+
+        <div class="modal-body">
+            @BodyContent
+        </div>
+
+        <div class="modal-footer">
+            <button class="default-button" @onclick="CloseModal">@FooterButtonText</button>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    private string _animationType = "in";
+
+    private void CloseModal()
+    {
+        _animationType = "out";
+    }
+}

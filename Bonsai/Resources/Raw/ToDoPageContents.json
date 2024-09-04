@@ -1,0 +1,17 @@
+{
+  "en":
+  {
+    "modal":
+    {
+      "header": "Select intensity",
+      "tip": "Select how intensively you will work towards your productivity and goals. You can later change this in settings.",
+      "day": "day",
+      "days": "days",
+      "a week": "a week",
+      "intensityMin": "Good",
+      "intensityMedium": "Great",
+      "intensityMax": "Amazing",
+      "button": "Let's start!"
+    }
+  }
+}

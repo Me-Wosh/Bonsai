@@ -17,7 +17,7 @@ public class LocationService : ILocationService
 
     public async Task<GeoLocationResponse> GetCurrentLocationAsync()
     {
-        var lastLocation = await _fileService.ReadUserDataAsync<GeoLocation>("location");
+        var lastLocation = await _fileService.ReadUserDataAsync<GeoLocation>("location.json");
         var timeDifference = DateTime.Now - lastLocation?.LastUpdate;
 
         if (timeDifference?.TotalHours < 1)
@@ -33,7 +33,7 @@ public class LocationService : ILocationService
             if (result != null)
             {
                 var location = _mapper.Map<GeoLocation>(result);
-                await _fileService.UpdateUserDataAsync<GeoLocation>("location", location);
+                await _fileService.UpdateUserDataAsync<GeoLocation>("location.json", location);
                 
                 return new GeoLocationResponse(GeoLocationResponseStatus.Success, location);
             }

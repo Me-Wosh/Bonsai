@@ -18,44 +18,46 @@
     </div>
 </div>
 
-@if (_paragraphsContents != null)
+@if (_pageContents == null)
 {
-    @if (_showLocationInfoModal)
-    {
-        <InfoModal
-            HeaderText="@_paragraphsContents?.GetProperty("en").GetProperty("locationUsage").GetProperty("heading").ToString()"
-            BodyText="@_paragraphsContents?.GetProperty("en").GetProperty("locationUsage").GetProperty("body").ToString()"
-            FooterButtonText="@_paragraphsContents?.GetProperty("en").GetProperty("locationUsage").GetProperty("button").ToString()" 
-            OnAnimationEndedCallback="HideLocationInfoModal" 
-        />
-    }
-
-    @if (_showLocationTurnedOffModal)
-    {
-        <InfoModal 
-            HeaderText="@_paragraphsContents?.GetProperty("en").GetProperty("locationTurnedOff").GetProperty("heading").ToString()"
-            BodyText="@_paragraphsContents?.GetProperty("en").GetProperty("locationTurnedOff").GetProperty("body").ToString()"
-            OnAnimationEndedCallback="(AnimationEndedEventArgs eventArgs) => HideModal(eventArgs, ref _showLocationTurnedOffModal)"
-        />
-    }
-
-    @if (_showLocationRejectionModal)
-    {
-        <InfoModal
-            HeaderText="@_paragraphsContents?.GetProperty("en").GetProperty("locationRejection").GetProperty("heading").ToString()"
-            BodyText="@_paragraphsContents?.GetProperty("en").GetProperty("locationRejection").GetProperty("body").ToString()"
-            OnAnimationEndedCallback="(AnimationEndedEventArgs eventArgs) => HideModal(eventArgs, ref _showLocationRejectionModal)"
-        />
-    }
+    return;
 }
+
+@if (_showLocationUsageModal)
+{
+    <InfoModal
+        HeaderText="@_pageContents?["en"]!["locationUsageModal"]!["header"]!.ToString()"
+        BodyText="@_pageContents?["en"]!["locationUsageModal"]!["body"]!.ToString()"
+        FooterButtonText="@_pageContents?["en"]!["locationUsageModal"]!["button"]!.ToString()" 
+        OnAnimationEndedCallback="HideLocationInfoModalAsync" 
+    />
+}   
+
+@if (_showLocationTurnedOffModal)
+{
+    <InfoModal 
+        HeaderText="@_pageContents?["en"]!["locationTurnedOffModal"]!["header"]!.ToString()"
+        BodyText="@_pageContents?["en"]!["locationTurnedOffModal"]!["body"]!.ToString()"
+        OnAnimationEndedCallback="(AnimationEndedEventArgs eventArgs) => HideModal(eventArgs, ref _showLocationTurnedOffModal)"
+    />
+}   
+
+@if (_showLocationRejectionModal)
+{
+    <InfoModal
+        HeaderText="@_pageContents?["en"]!["locationRejectionModal"]!["header"]!.ToString()"
+        BodyText="@_pageContents?["en"]!["locationRejectionModal"]!["body"]!.ToString()"
+        OnAnimationEndedCallback="(AnimationEndedEventArgs eventArgs) => HideModal(eventArgs, ref _showLocationRejectionModal)"
+    />
+}   
 
 @code
 {
-    private static JsonElement? _paragraphsContents;
+    private static JsonNode? _pageContents;
     private static Weather _weather = new();
     private static string? _weatherImagePath = GetWeatherImagePath();
     private static bool _isBusy;
-    private bool _showLocationInfoModal;
+    private bool _showLocationUsageModal;
     private bool _showLocationTurnedOffModal;
     private bool _showLocationRejectionModal;
 
@@ -63,26 +65,15 @@
     {
         WeatherChanged += StateHasChanged;
 
-        if (_paragraphsContents == null)
+        if (_pageContents == null)
         {
-            _paragraphsContents = await FileService.ReadRawDataAsync("BonsaiTreePageContents");
+            _pageContents = await FileService.ReadRawDataAsync("BonsaiTreePageContents.json");
         }
-
-        if (_showLocationInfoModal)
+            
+        if (!AppState.User.LocationUsageAcknowledged)
         {
+            _showLocationUsageModal = true;
             return;
-        }
-
-        if (AppState.UserData == null)
-        {
-            AppState.UserData = await FileService.ReadUserDataAsync<UserData>("user");
-
-            // if user has launched the app for the first time
-            if (AppState.UserData == null)
-            {
-                _showLocationInfoModal = true;
-                return;
-            }
         }
 
         var timeSinceLastWeatherUpdate = DateTime.Now - Weather.LastUpdate;
@@ -129,18 +120,14 @@
 
     private async Task HandleLocationUsagePermission(GeoLocationResponseStatus status)
     {
-        if (AppState.UserData != null)
+        if (AppState.User.LocationUsageAcknowledged)
         {
             return;
         }
 
-        AppState.UserData = new UserData
-        {
-            LastUpdate = DateTime.Now,
-            GeoLocationUsageAcknowledged = true
-        };
+        AppState.User.LocationUsageAcknowledged = true;
 
-        await FileService.UpdateUserDataAsync<UserData>("user", AppState.UserData);
+        await FileService.UpdateUserDataAsync<User>("user.json", AppState.User);
 
         if (status == GeoLocationResponseStatus.NotEnabled)
         {
@@ -217,9 +204,9 @@
         return true;
     }
 
-    private async Task HideLocationInfoModal(AnimationEndedEventArgs eventArgs)
+    private async Task HideLocationInfoModalAsync(AnimationEndedEventArgs eventArgs)
     {
-        if (!HideModal(eventArgs, ref _showLocationInfoModal))
+        if (!HideModal(eventArgs, ref _showLocationUsageModal))
         {
             return;
         }

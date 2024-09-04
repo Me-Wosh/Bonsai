@@ -1,40 +1,17 @@
-﻿<div class="modal fade@_animationType" @onanimationended="OnAnimationEndedCallback">
-    <div class="modal-content slide@_animationType">
-        <div class="modal-header">
-            <p class="header-text">@HeaderText</p>
-            <p class="modal-close" @onclick="CloseModal">X</p>
-        </div>
+﻿@inherits ModalBase
 
-        <div class="modal-body">
-            <p>
-                @BodyText
-            </p>
-        </div>
-
-        <div class="modal-footer">
-            <button class="default-button" @onclick="CloseModal">@FooterButtonText</button>
-        </div>
-    </div>
-</div>
+<Modal 
+    HeaderText="@HeaderText" 
+    FooterButtonText="@FooterButtonText" 
+    OnAnimationEndedCallback="@OnAnimationEndedCallback"
+>
+    <BodyContent>
+        <p>@BodyText</p>
+    </BodyContent>
+</Modal>
 
 @code 
 {
-    private string _animationType = "in";
-
-    [Parameter]
-    public string? HeaderText { get; set; }
-
     [Parameter]
     public string? BodyText { get; set; }
-
-    [Parameter]
-    public string FooterButtonText { get; set; } = "OK";
-
-    [Parameter]
-    public EventCallback<AnimationEndedEventArgs> OnAnimationEndedCallback { get; set; }
-
-    private void CloseModal()
-    {
-        _animationType = "out";
-    }
 }

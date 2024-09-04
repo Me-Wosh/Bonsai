@@ -1,9 +1,13 @@
-﻿namespace Bonsai;
+﻿using Bonsai.Services;
+
+namespace Bonsai;
 
 public partial class App : Application
 {
-    public App()
+    public App(AppState appState, IFileService fileService)
     {
+        appState.User = fileService.LoadUser();
+
         InitializeComponent();
 
         MainPage = new MainPage();

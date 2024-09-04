@@ -2,21 +2,21 @@
 @inject IFileService FileService
 
 <div id="container">
-    <h1 id="settings-text">Settings</h1>
+    <p id="settings-header">Settings</p>
 
     <div class="setting" @onclick="OpenSettings">
-        <p>@(_paragraphsContents?.GetProperty("en").GetProperty("locationPermission"))</p>
+        <p>@_pageContents?["en"]!["locationPermission"]</p>
         <img class="icon" src="./icons/external_link_icon.png" />        
     </div>
 </div>
 
 @code 
 {
-    private JsonElement? _paragraphsContents;
+    private JsonNode? _pageContents;
 
-    protected override async void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        _paragraphsContents = await FileService.ReadRawDataAsync("SettingsPageContents");
+        _pageContents = await FileService.ReadRawDataAsync("SettingsPageContents.json");
     }
 
     private void OpenSettings()

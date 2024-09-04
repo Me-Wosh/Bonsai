@@ -1,22 +1,22 @@
 {
   "en":
   {
-    "locationUsage":
+    "locationUsageModal":
     {
-      "heading": "Location Usage",
-      "body": "Bonsai uses Your Device's location to get information about the weather. Your location data is anonymous and not associated with You or Your Device. You don't need to keep your location turned on at all times as Bonsai will remember and store your last known location securely on your device. This feature is entirely optional.",
+      "header": "Location Usage",
+      "body": "Bonsai uses Your Device's location to get information about the weather. Your location data is anonymous and not associated with You or Your Device. You don't need to keep your location turned on at all times as Bonsai will remember and store your last known location securely on your device. This feature is entirely optional. Enjoy!",
       "button": "I Understand"
     },
 
-    "locationTurnedOff":
+    "locationTurnedOffModal":
     {
-      "heading": "Location Turned Off",
+      "header": "Location Turned Off",
       "body": "You need to have your location turned on in order to get weather."
     },
 
-    "locationRejection":
+    "locationRejectionModal":
     {
-      "heading": "Location Permission",
+      "header": "Location Permission",
       "body": "That's fine. If you change your mind you can always modify this option in settings."
     }
   }

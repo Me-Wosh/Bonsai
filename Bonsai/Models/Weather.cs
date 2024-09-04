@@ -1,6 +1,17 @@
 ﻿namespace Bonsai.Models;
 
-public class Weather : UserRelatedData
+public class Weather : UserData
 {
-    public string WeatherType { get; set; } = Models.WeatherType.Sunny;
+    private string _weatherType = Models.WeatherType.Sunny;
+
+    public string WeatherType
+    {
+        get => _weatherType;
+     
+        set
+        {
+            _weatherType = value;
+            LastUpdate = DateTime.Now;
+        }
+    }
 }

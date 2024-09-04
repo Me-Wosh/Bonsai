@@ -10,10 +10,11 @@
     background-color: var(--light-green);
 }
 
-#settings-text
+#settings-header
 {
     background-color: var(--green);
     border-bottom: 4px solid black;
+    font-size: 32px;
     font-weight: bold;
     padding-bottom: 15px;
     text-align: center;
