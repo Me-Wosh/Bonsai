@@ -1,0 +1,130 @@
+#progress-container
+{
+    align-items: center;
+    background-color: var(--green);
+    border-bottom: 4px solid black;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+    width: 100%;
+}
+
+#progress-background
+{
+    align-items: center;
+    background-color: white;
+    border: 5px solid black;
+    border-radius: 50%;
+    display: flex;
+    height: 100px;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    width: 100px;
+}
+
+#progress-foreground
+{   
+    background-color: var(--green);
+    bottom: 0;
+    position: absolute;
+    width: 100%;
+    transition: height 1s ease-in-out;
+    z-index: 0;
+}
+
+#progress-percentage
+{
+    font-size: 24px;
+    font-weight: 900;
+    z-index: 1;
+}
+
+#content-container
+{
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    row-gap: 15px;
+    width: 100%;
+}
+
+#add-todo
+{
+    width: fit-content;
+}
+
+#todos-container
+{
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+}
+
+#body-content
+{
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;   
+    row-gap: 20px;
+}
+
+#intensity
+{
+    appearance: none;
+    width: 200px;
+}
+
+#intensity::-webkit-slider-runnable-track
+{
+    appearance: none;
+    background-color: var(--green);
+    border: 5px solid black;
+    border-radius: 25px;
+    height: 25px;
+}
+
+#intensity::-webkit-slider-thumb
+{
+    appearance: none;
+    background-color: black;
+    border: 5px solid black;
+    border-radius: 25px;
+    height: 40px;
+    margin-top: -12px;
+    width: 40px;
+}
+
+.intensity-icon
+{
+    animation: fade-in 300ms;
+    height: 80px;
+    width: 80px;
+}
+
+.intensity-text
+{
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.bold
+{
+    font-weight: 900;
+}
+
+@keyframes fade-in
+{
+    from
+    {
+        opacity: 0;
+    }
+
+    to
+    {
+        opacity: 1;
+    }
+}

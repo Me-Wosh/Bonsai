@@ -1,0 +1,35 @@
+{
+  "en":
+  {
+    "pageTitle":
+    {
+      "new": "New task",
+      "edit": "Edit"
+    },
+
+    "label":
+    {
+      "title": "Title",
+      "description": "Description",
+      "difficulty": "Difficulty",
+      "required": "required",
+      "optional": "optional"
+    },
+
+    "difficulty":
+    {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    },
+
+    "button":
+    {
+      "add": "Add",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+
+    "titleValidationError": "Title field cannot be empty"
+  }
+}

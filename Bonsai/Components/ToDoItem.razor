@@ -1,0 +1,90 @@
+﻿<div class="todo-container">
+
+    @if (_isExpanded && !ToDo.IsCompleted)
+    {
+        <div class="todo-actions">
+            <img src="./icons/edit_icon.png" @onclick="OnEdited" />
+
+            <span class="todo-actions-separator" />
+
+            <img @onclick="OnDeleted" src="./icons/trash_icon.png" />
+        </div>
+    }
+
+    <div class="todo" >
+        <div class="checkbox-container">
+            <input 
+                type="checkbox" 
+                @bind="ToDo.IsCompleted" 
+                @bind:event="oninput"
+                @onchange="OnCompleted"
+                @onclick="@(() => _isExpanded = false)" 
+            />
+            <img src="./icons/checkbox_checked_icon.png" class="icon" />
+        </div>
+
+        <div class="details-container" @onclick="@(() => _isExpanded = !_isExpanded)">        
+            <p class="todo-title">@ToDo.Title</p>
+
+            @if (ToDo.Difficulty == Difficulty.Easy)
+            {
+                <p class="todo-difficulty easy">@Easy</p>
+            }
+
+            else if (ToDo.Difficulty == Difficulty.Medium)
+            {
+                <p class="todo-difficulty medium">@Medium</p>
+            }
+
+            else
+            {
+                <p class="todo-difficulty hard">@Hard</p>
+            }
+
+            <div 
+                class="todo-overlay"
+                style="background-color: @(ToDo.IsCompleted ? "rgba(255, 255, 255, 0.8);" : "transparent;")
+                       visibility: @(ToDo.IsCompleted ? "visible;" : "hidden;")"
+            />
+        </div>
+    </div>
+
+    @if (_isExpanded && ToDo.Description != null)
+    {
+        <div class="todo-description">
+            <p>@ToDo.Description</p>
+
+            <div 
+                class="description-overlay"
+                style="background-color: @(ToDo.IsCompleted ? "rgba(255, 255, 255, 0.8);" : "transparent;")
+                       visibility: @(ToDo.IsCompleted ? "visible;" : "hidden;")" 
+            />
+        </div>
+    }
+</div>
+
+@code 
+{
+    private bool _isExpanded;
+
+    [Parameter]
+    public ToDo ToDo { get; set; }
+
+    [Parameter]
+    public string Easy { get; set; } = "Easy";
+
+    [Parameter]
+    public string Medium { get; set; } = "Medium";
+
+    [Parameter]
+    public string Hard { get; set; } = "Hard";
+
+    [Parameter]
+    public EventCallback OnCompleted { get; set; }
+
+    [Parameter]
+    public EventCallback OnEdited { get; set; }
+
+    [Parameter]
+    public EventCallback OnDeleted { get; set; }
+}

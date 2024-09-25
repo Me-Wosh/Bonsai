@@ -2,13 +2,25 @@
 
 public class User : UserData
 {
+    private List<ToDo> _toDos = new();
     private bool _locationUsageAcknowledged;
     private bool _intensitySelected;
     private byte _intensityGoal;
     private byte _intensityProgress;
     private byte _bonsaiStage;
     private uint _streak;
-    
+
+    public List<ToDo> ToDos 
+    { 
+        get => _toDos; 
+        
+        set 
+        { 
+            _toDos = value;
+            LastUpdate = DateTime.Now; 
+        } 
+    }
+
     public bool LocationUsageAcknowledged 
     { 
         get => _locationUsageAcknowledged;

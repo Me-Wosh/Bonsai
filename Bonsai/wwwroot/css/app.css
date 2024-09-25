@@ -9,36 +9,47 @@
     --light-green: #91DD8E;
     --green: #5CC958;
     --greener: #459C42;
-    --red: #E32D2D;
+    --orange: rgb(255, 190, 80);
+    --red: rgb(255, 110, 100);
+    --alert: #E32D2D;
 }
 
 *
 {
+    appearance: none;
     font-family: "Poppins", sans-serif;
     font-size: 17px;
     font-weight: 450; 
     margin: 0;
     padding: 0;
-    user-select: none;
 }
 
 html, body
 {
     height: 100%;
     width: 100%;
+    user-select: none;
+}
+
+body
+{
+    background-color: rgb(255, 255, 0, 0.1);
 }
 
 #app
-{
+{ 
     height: 100%;
     width: 100%;
 }
 
 button
 {
+    align-items: center;
     appearance: none;
     background-color: transparent;
     border: none;
+    display: flex;
+    justify-content: center;
 }
 
 .icon
@@ -57,11 +68,17 @@ button
     font-weight: 700;
     min-width: 100px;
     padding: 15px;
+    transition: background-color 500ms;
 }
 
-.default-button:active
+.default-button:enabled:active
 {
     background-color: var(--light-green);
     box-shadow: 2px 2px black;
     transform: translate(2px, 2px);
+}
+
+.default-button:disabled
+{
+    background-color: lightgray;
 }

@@ -1,0 +1,145 @@
+﻿@page "/ToDos"
+@inject IJSRuntime JavaScript
+@inject NavigationManager NavigationManager
+@inject AppState AppState
+@inject IFileService FileService
+
+<div id="progress-container">
+    <div id="progress-background">
+        <div 
+            id="progress-foreground" 
+            style="height: @(_toDos.Count > 0 ? (double)_toDos.Where(t => t.IsCompleted).Count() / _toDos.Count * 100 : 0)%;"
+        />
+        <p id="progress-percentage">
+            @(_toDos.Count > 0 ? (int)((float)_toDos.Where(t => t.IsCompleted).Count() / _toDos.Count * 100) : 0)%
+        </p>
+    </div>
+</div>
+
+<div id="content-container">
+    <button class="default-button" id="add-todo" @onclick="AddToDo">@_pageContents?["en"]!["toDo"]!["add"]</button>
+
+    @if (_toDos.Count > 0)
+    {
+        <p>@_pageContents?["en"]!["hint"]</p>
+    }
+
+    <div id="todos-container">
+        @foreach (var toDo in _toDos)
+        {
+            <ToDoItem 
+                ToDo="toDo"
+                Easy="@_pageContents?["en"]!["toDo"]!["difficulty"]!["easy"]!.ToString()"
+                Medium="@_pageContents?["en"]!["toDo"]!["difficulty"]!["medium"]!.ToString()"
+                Hard="@_pageContents?["en"]!["toDo"]!["difficulty"]!["hard"]!.ToString()"
+                OnCompleted="StateHasChanged"
+                OnEdited="() => EditToDo(toDo.Id)"
+                OnDeleted="() => DeleteToDo(toDo)"
+            />
+        }
+    </div>
+</div>
+
+@if (_pageContents == null)
+{
+    return;
+}
+
+@if (_showIntensitySelectionModal)
+{
+    <Modal
+        HeaderText="@_pageContents?["en"]!["modal"]!["header"]!.ToString()"
+        FooterButtonText="@_pageContents?["en"]!["modal"]!["button"]!.ToString()"
+        OnAnimationEndedCallback="HideModalAsync"
+    >
+        <BodyContent>
+            <div id="body-content">
+                <p>@_pageContents?["en"]!["modal"]!["tip"]</p>
+
+                <p>
+                    <span class="bold">@_intensity</span> 
+                    @(_intensity > 1 ? _pageContents?["en"]!["modal"]!["days"] : _pageContents?["en"]!["modal"]!["day"]) 
+                    @_pageContents?["en"]!["modal"]!["aWeek"]
+                </p>
+
+                <input id="intensity" type="range" min="1" max="7" @bind="_intensity" @bind:event="oninput" />
+
+                @if (_intensity < 3)
+                {
+                    <img class="intensity-icon" src="./icons/thumbs_up_icon.png" />
+                    <p class="intensity-text">@_pageContents?["en"]!["modal"]!["intensity"]!["min"]</p>
+                }
+
+                else if (_intensity < 5)
+                {
+                    <img class="intensity-icon" src="./icons/biceps_icon.png" />
+                    <p class="intensity-text">@_pageContents?["en"]!["modal"]!["intensity"]!["medium"]</p>
+                }
+
+                else
+                {
+                    <img class="intensity-icon" src="./icons/dumbbell_icon.png" />
+                    <p class="intensity-text">@_pageContents?["en"]!["modal"]!["intensityMax"]!["max"]</p>
+                }
+            </div>
+        </BodyContent>
+    </Modal>
+}
+
+@code
+{
+    private static JsonNode? _pageContents;
+    private List<ToDo> _toDos = new();
+    private bool _showIntensitySelectionModal;
+    private byte _intensity = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (_pageContents == null)
+        {
+            _pageContents = await FileService.ReadRawDataAsync("PageContents/ToDos.json");
+        }
+
+        if (!AppState.User.IntensitySelected)
+        {
+            _showIntensitySelectionModal = true;
+        }
+
+        _toDos = AppState.User.ToDos;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JavaScript.InvokeVoidAsync("matchWidth", ".todo-difficulty");
+    }
+
+    private void AddToDo()
+    {
+        NavigationManager.NavigateTo("/AddEditToDo");
+    }
+
+    private void EditToDo(int id)
+    {
+        NavigationManager.NavigateTo($"/AddEditToDo/{id}");
+    }
+
+    private void DeleteToDo(ToDo toDo)
+    {
+        _toDos.Remove(toDo);
+    }
+
+    private async Task HideModalAsync(AnimationEndedEventArgs eventArgs)
+    {
+        if (eventArgs.AnimationName != "fadeout")
+        {
+            return;
+        }
+
+        _showIntensitySelectionModal = false;
+
+        AppState.User.IntensitySelected = true;
+        AppState.User.IntensityGoal = _intensity;
+
+        await FileService.UpdateUserDataAsync<User>("user.json", AppState.User);
+    }
+}

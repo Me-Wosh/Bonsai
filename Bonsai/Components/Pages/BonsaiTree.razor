@@ -67,7 +67,7 @@
 
         if (_pageContents == null)
         {
-            _pageContents = await FileService.ReadRawDataAsync("BonsaiTreePageContents.json");
+            _pageContents = await FileService.ReadRawDataAsync("PageContents/BonsaiTree.json");
         }
             
         if (!AppState.User.LocationUsageAcknowledged)
@@ -142,7 +142,7 @@
 
     private static string GetWeatherImagePath()
     {
-        var weatherType = Weather.WeatherType;
+        var weatherType  = Weather.WeatherType;
         var partOfTheDay = GetPartOfTheDay();
 
         if (weatherType == WeatherType.Sunny && partOfTheDay == DayPart.Night)

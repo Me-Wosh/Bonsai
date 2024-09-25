@@ -1,0 +1,36 @@
+{
+  "en":
+  {
+    "hint": "Hint: Tap on task to see more details.",
+
+    "toDo":
+    {
+      "difficulty":
+      {
+        "easy": "Easy",
+        "medium": "Medium",
+        "hard": "Hard"
+      },
+
+      "add": "Add"
+    },
+
+    "modal":
+    {
+      "header": "Select intensity",
+      "tip": "Select how intensively you will work towards your productivity and goals. You can later change this in settings.",
+      "day": "day",
+      "days": "days",
+      "aWeek": "a week",
+
+      "intensity":
+      {
+        "min": "Good",
+        "medium": "Great",
+        "max": "Amazing"
+      },
+      
+      "button": "Let's start!"
+    }
+  }
+}

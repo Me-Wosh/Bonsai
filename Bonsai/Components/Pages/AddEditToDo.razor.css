@@ -1,0 +1,88 @@
+#page-title
+{
+    background-color: var(--green);
+    border-bottom: 4px solid black;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 28px;
+    margin-bottom: 15px;
+    padding: 0 15px 15px 15px;
+    text-align: center;
+}
+
+#page-title span
+{
+    font-size: 23px;
+    word-break: break-word;
+}
+
+::deep #todo-form
+{
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    row-gap: 20px;
+}
+
+::deep #todo-form label
+{
+    display: flex;
+    flex-direction: column;
+    font-size: 19px;
+    font-weight: 800;
+    position: relative;
+    row-gap: 15px;
+}
+
+::deep #todo-title, ::deep #todo-description
+{
+    border: 4px solid black;
+    border-radius: 15px;
+    padding: 10px 10px 30px 10px;
+    position: relative;
+    resize: none;
+}
+
+::deep .characters-left-indicator
+{
+    bottom: 10px;
+    position: absolute;  
+    right: 14px;
+}
+
+#todo-title-validation-error
+{
+    color: var(--alert);
+    display: none;  
+    margin-top: -15px;
+}
+
+::deep #todo-difficulty-select
+{
+    background-color: lightgray;
+    background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-caret-down-fill' viewBox='0 0 16 16'><path d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/></svg>");
+    background-position: bottom 50% right 10px;
+    background-repeat: no-repeat;
+    border: 4px solid black;
+    border-radius: 15px;
+    font-size: 19px;
+    padding: 10px;
+    text-align: center;
+    transition: background-color 50ms;
+}
+
+::deep #todo-difficulty-select:active
+{
+    background-color: gray;
+}
+
+#form-buttons
+{
+    column-gap: 15px;
+    display: flex;
+}
+
+#cancel
+{
+    background-color: white;
+}

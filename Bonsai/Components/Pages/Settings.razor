@@ -2,7 +2,7 @@
 @inject IFileService FileService
 
 <div id="container">
-    <p id="settings-header">Settings</p>
+    <p id="settings-header">@_pageContents?["en"]!["pageTitle"]</p>
 
     <div class="setting" @onclick="OpenSettings">
         <p>@_pageContents?["en"]!["locationPermission"]</p>
@@ -16,7 +16,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _pageContents = await FileService.ReadRawDataAsync("SettingsPageContents.json");
+        _pageContents = await FileService.ReadRawDataAsync("PageContents/Settings.json");
     }
 
     private void OpenSettings()

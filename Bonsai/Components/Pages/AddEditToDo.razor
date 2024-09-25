@@ -1,0 +1,187 @@
+﻿@page "/AddEditToDo/{Id:int?}"
+@inject NavigationManager NavigationManager
+@inject AppState AppState
+@inject IFileService FileService
+
+<div id="container">
+    @if (Id == null)
+    {
+        <p id="page-title">@_pageContents?["en"]!["pageTitle"]!["new"]</p>
+    }
+
+    else
+    {
+        <p id="page-title">@_pageContents?["en"]!["pageTitle"]!["edit"] "<span>@_initialTitle</span>"</p>
+    }
+
+    <EditForm Model="FormToDo" OnValidSubmit="HandleValidSubmit" id="todo-form">
+        <DataAnnotationsValidator />
+
+        <label>
+            @_pageContents?["en"]!["label"]!["title"] (@_pageContents?["en"]!["label"]!["required"])
+
+            <InputTextArea 
+                @bind-Value="FormToDo.Title" 
+                @oninput="OnToDoTitleInput"
+                @onfocusout="() => Validate(FormToDo.Title)"
+                id="todo-title" 
+                rows="3" 
+                maxlength="@_titleMaxLength" 
+            />
+            <p class="characters-left-indicator">@_titleLength / @_titleMaxLength</p>
+        </label>
+
+        <p id="todo-title-validation-error" style="@_titleValidationStyle">
+            @_pageContents?["en"]!["titleValidationError"]
+        </p>
+
+        <label>
+            @_pageContents?["en"]!["label"]!["description"] (@_pageContents?["en"]!["label"]!["optional"])
+            
+            <InputTextArea 
+                @bind-Value="FormToDo.Description"
+                @oninput="UpdateDescriptionLength"
+                id="todo-description" 
+                rows="7" 
+                maxlength="@_descriptionMaxLength"
+            />
+
+            <p class="characters-left-indicator">@_descriptionLength / @_descriptionMaxLength</p>
+        </label>
+
+        <label>
+            @_pageContents?["en"]!["label"]!["difficulty"]
+
+            <InputSelect @bind-Value="FormToDo.Difficulty" id="todo-difficulty-select">
+                <option value="easy">@_pageContents?["en"]!["difficulty"]!["easy"]</option>
+                <option value="medium">@_pageContents?["en"]!["difficulty"]!["medium"]</option>
+                <option value="hard">@_pageContents?["en"]!["difficulty"]!["hard"]</option>
+            </InputSelect>
+        </label>
+
+        <div id="form-buttons">
+            @if (Id == null)
+            {
+                <button class="default-button" type="submit" @onclick="() => Validate(FormToDo.Title)">
+                    @_pageContents?["en"]!["button"]!["add"]
+                </button>
+            }
+
+            else
+            {
+                <button class="default-button" type="submit" @onclick="() => Validate(FormToDo.Title)">
+                    @_pageContents?["en"]!["button"]!["save"]
+                </button>
+            }
+
+            <button id="cancel" class="default-button" type="button" @onclick="@(() => NavigationManager.NavigateTo("/ToDos"))">
+                @_pageContents?["en"]!["button"]!["cancel"]
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+@code 
+{
+    private static JsonNode? _pageContents;
+    private int _titleLength = 0;
+    private int _titleMaxLength = 50;
+    private int _descriptionLength = 0;
+    private int _descriptionMaxLength = 150;
+    private int _index;
+    private string? _initialTitle;
+    private string _titleValidationStyle = "display: none";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (_pageContents == null)
+        {
+            _pageContents = await FileService.ReadRawDataAsync("PageContents/AddEditToDo.json");
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Id == null)
+        {
+            return;
+        }
+
+        _index = AppState.User.ToDos.FindIndex(toDo => toDo.Id == Id);
+        var initialToDo = AppState.User.ToDos[_index];
+
+        FormToDo = new ToDo
+        {
+            Id = initialToDo.Id,
+            Title = initialToDo.Title,
+            Description = initialToDo.Description,
+            Difficulty = initialToDo.Difficulty
+        };
+
+        _initialTitle = initialToDo.Title;
+        _titleLength = initialToDo.Title.Length;
+
+        if (initialToDo.Description != null)
+        {
+            _descriptionLength = initialToDo.Description.Length;
+        }
+    }
+
+    [SupplyParameterFromForm]
+    private ToDo FormToDo { get; set; } = new() { Title = "" };
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    private bool Validate(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            _titleValidationStyle = "display: block";
+            return false;
+        }
+
+        if (_titleValidationStyle != "display: none")
+        {
+            _titleValidationStyle = "display: none";  
+        }
+
+        return true;
+    }
+
+    private void HandleValidSubmit()
+    {
+        FormToDo.Title = FormToDo.Title.Trim();
+        FormToDo.Description = FormToDo.Description?.Trim();
+
+        if (!Validate(FormToDo.Title))
+        {
+            return;
+        }
+
+        if (Id == null)
+        {
+            FormToDo.Id = AppState.User.ToDos.Count;
+            AppState.User.ToDos.Add(FormToDo);
+        }
+
+        else
+        {
+            AppState.User.ToDos[_index] = FormToDo;
+        }
+
+        NavigationManager.NavigateTo("/ToDos");
+    }
+
+    private void OnToDoTitleInput(ChangeEventArgs e)
+    {
+        Validate((string)e.Value!);
+
+        _titleLength = ((string)e.Value!).Length;
+    }
+
+    private void UpdateDescriptionLength(ChangeEventArgs e)
+    {
+        _descriptionLength = ((string)e.Value!).Length;
+    }
+}
