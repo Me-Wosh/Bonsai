@@ -65,10 +65,7 @@
     {
         WeatherChanged += StateHasChanged;
 
-        if (_pageContents == null)
-        {
-            _pageContents = await FileService.ReadRawDataAsync("PageContents/BonsaiTree.json");
-        }
+        _pageContents ??= await FileService.ReadRawDataAsync(Files.BonsaiTreePageContents);
             
         if (!AppState.User.LocationUsageAcknowledged)
         {
@@ -86,7 +83,7 @@
         await GetWeatherAsync();
     }
 
-    private static event Action WeatherChanged;
+    private static event Action? WeatherChanged;
 
     private static Weather Weather
     {
@@ -127,7 +124,7 @@
 
         AppState.User.LocationUsageAcknowledged = true;
 
-        await FileService.UpdateUserDataAsync<User>("user.json", AppState.User);
+        await FileService.UpdateUserDataAsync(Files.User, AppState.User);
 
         if (status == GeoLocationResponseStatus.NotEnabled)
         {

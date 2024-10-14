@@ -20,7 +20,7 @@ public class WeatherService : IWeatherService
 
     public async Task<Weather> GetWeatherAsync(GeoLocation? location)
     {
-        var lastWeather = await _fileService.ReadUserDataAsync<Weather>("weather.json");
+        var lastWeather = await _fileService.ReadUserDataAsync<Weather>(Files.Weather);
         var timeDifference = DateTime.Now - lastWeather?.LastUpdate;
 
         if (timeDifference?.TotalHours < 1)
@@ -50,7 +50,7 @@ public class WeatherService : IWeatherService
             {
                 var content = await response.Content.ReadFromJsonAsync<WeatherResponse>();
                 weather = _mapper.Map<Weather>(content);
-                await _fileService.UpdateUserDataAsync<Weather>("weather.json", weather);
+                await _fileService.UpdateUserDataAsync(Files.Weather, weather);
             }
         }
 

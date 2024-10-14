@@ -2,27 +2,28 @@
 
 public class WeatherResponse
 {
-    public LocationResponse Location { get; set; }
-    public Current Current { get; set; }
+    public required LocationResponse Location { get; init; }
+
+    public required Current Current { get; init; }
 }
 public class Condition
 {
-    public string Text { get; set; }
+    public string Text { get; init; } = "";
 }
 
 public class Current
 {
-    public Condition Condition { get; set; }
+    public required Condition Condition { get; init; }
 }
 
 public class LocationResponse
 {
-    public string Name { get; set; }
-    public string Region { get; set; }
-    public string Country { get; set; }
-    public double Lat { get; set; }
-    public double Lon { get; set; }
-    public string TzId { get; set; }
-    public int LocaltimeEpoch { get; set; }
-    public string Localtime { get; set; }
+    public string Name { get; init; } = "";
+    public string Region { get; init; } = "";
+    public string Country { get; init; } = "";
+    public double Lat { get; init; }
+    public double Lon { get; init; }
+    public string TzId { get; init; } = "";
+    public int LocaltimeEpoch { get; init; }
+    public string Localtime { get; init; } = "";
 }

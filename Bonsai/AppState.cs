@@ -4,5 +4,5 @@ namespace Bonsai;
 
 public class AppState
 {
-    public User User { get; set; }
+    public required User User { get; set; }
 }

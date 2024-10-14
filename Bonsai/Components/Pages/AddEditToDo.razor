@@ -1,5 +1,7 @@
-﻿@page "/AddEditToDo/{Id:int?}"
+﻿@page "/AddToDo/{SelectedDate:datetime}"
+@page "/EditToDo/{Id:int}"
 @inject NavigationManager NavigationManager
+@inject IMapper Mapper 
 @inject AppState AppState
 @inject IFileService FileService
 
@@ -14,21 +16,23 @@
         <p id="page-title">@_pageContents?["en"]!["pageTitle"]!["edit"] "<span>@_initialTitle</span>"</p>
     }
 
-    <EditForm Model="FormToDo" OnValidSubmit="HandleValidSubmit" id="todo-form">
+    <EditForm Model="FormToDo" OnValidSubmit="HandleSubmitAsync" id="todo-form">
         <DataAnnotationsValidator />
 
         <label>
             @_pageContents?["en"]!["label"]!["title"] (@_pageContents?["en"]!["label"]!["required"])
 
             <InputTextArea 
-                @bind-Value="FormToDo.Title" 
+                @bind-Value="FormToDo.Title"
                 @oninput="OnToDoTitleInput"
                 @onfocusout="() => Validate(FormToDo.Title)"
                 id="todo-title" 
                 rows="3" 
                 maxlength="@_titleMaxLength" 
             />
-            <p class="characters-left-indicator">@_titleLength / @_titleMaxLength</p>
+            <p class="characters-left-indicator">
+                <span style="color: @(_titleLength > _titleMaxLength ? "var(--red)" : "initial")">@_titleLength</span> / @_titleMaxLength
+            </p>
         </label>
 
         <p id="todo-title-validation-error" style="@_titleValidationStyle">
@@ -46,7 +50,9 @@
                 maxlength="@_descriptionMaxLength"
             />
 
-            <p class="characters-left-indicator">@_descriptionLength / @_descriptionMaxLength</p>
+            <p class="characters-left-indicator">
+                <span style="color: @(_descriptionLength > _descriptionMaxLength ? "var(--red)" : "initial")">@_descriptionLength</span> / @_descriptionMaxLength
+            </p>
         </label>
 
         <label>
@@ -74,7 +80,12 @@
                 </button>
             }
 
-            <button id="cancel" class="default-button" type="button" @onclick="@(() => NavigationManager.NavigateTo("/ToDos"))">
+            <button 
+                id="cancel" 
+                class="default-button" 
+                type="button" 
+                @onclick="@(() => NavigationManager.NavigateTo($"/ToDos/{FormToDo.Date.ToString("yyyy-MM-dd")}"))"
+            >
                 @_pageContents?["en"]!["button"]!["cancel"]
             </button>
         </div>
@@ -88,36 +99,25 @@
     private int _titleMaxLength = 50;
     private int _descriptionLength = 0;
     private int _descriptionMaxLength = 150;
-    private int _index;
     private string? _initialTitle;
     private string _titleValidationStyle = "display: none";
 
     protected override async Task OnInitializedAsync()
     {
-        if (_pageContents == null)
-        {
-            _pageContents = await FileService.ReadRawDataAsync("PageContents/AddEditToDo.json");
-        }
+        _pageContents ??= await FileService.ReadRawDataAsync(Files.AddEditToDoPageContents);
     }
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         if (Id == null)
         {
+            FormToDo.Date = SelectedDate;
             return;
         }
 
-        _index = AppState.User.ToDos.FindIndex(toDo => toDo.Id == Id);
-        var initialToDo = AppState.User.ToDos[_index];
-
-        FormToDo = new ToDo
-        {
-            Id = initialToDo.Id,
-            Title = initialToDo.Title,
-            Description = initialToDo.Description,
-            Difficulty = initialToDo.Difficulty
-        };
-
+        var initialToDo = await App.ToDoRepository.GetAsync((int)Id);
+        
+        FormToDo = Mapper.Map<FormToDo>(initialToDo);
         _initialTitle = initialToDo.Title;
         _titleLength = initialToDo.Title.Length;
 
@@ -128,28 +128,15 @@
     }
 
     [SupplyParameterFromForm]
-    private ToDo FormToDo { get; set; } = new() { Title = "" };
+    private FormToDo FormToDo { get; set; } = new() { Title = "" };
+
+    [Parameter]
+    public DateTime SelectedDate { get; set; }
 
     [Parameter]
     public int? Id { get; set; }
 
-    private bool Validate(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            _titleValidationStyle = "display: block";
-            return false;
-        }
-
-        if (_titleValidationStyle != "display: none")
-        {
-            _titleValidationStyle = "display: none";  
-        }
-
-        return true;
-    }
-
-    private void HandleValidSubmit()
+    private async Task HandleSubmitAsync()
     {
         FormToDo.Title = FormToDo.Title.Trim();
         FormToDo.Description = FormToDo.Description?.Trim();
@@ -159,18 +146,19 @@
             return;
         }
 
+        var toDo = Mapper.Map<ToDo>(FormToDo);
+
         if (Id == null)
         {
-            FormToDo.Id = AppState.User.ToDos.Count;
-            AppState.User.ToDos.Add(FormToDo);
+            await App.ToDoRepository.AddAsync(toDo);
         }
 
         else
         {
-            AppState.User.ToDos[_index] = FormToDo;
+            await App.ToDoRepository.UpdateAsync(toDo);
         }
 
-        NavigationManager.NavigateTo("/ToDos");
+        NavigationManager.NavigateTo($"/ToDos/{toDo.Date.ToString("yyyy-MM-dd")}");
     }
 
     private void OnToDoTitleInput(ChangeEventArgs e)
@@ -183,5 +171,18 @@
     private void UpdateDescriptionLength(ChangeEventArgs e)
     {
         _descriptionLength = ((string)e.Value!).Length;
+    }
+
+    private bool Validate(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            _titleValidationStyle = "display: block";
+            return false;
+        }
+
+        _titleValidationStyle = "display: none";  
+
+        return true;
     }
 }

@@ -51,6 +51,37 @@
     width: 100%;
 }
 
+#todo-navigation
+{
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+#todo-navigation button
+{
+    background-color: lightgray;
+    border: 3px solid black;
+    border-radius: 10px;
+    font-weight: 900;
+    height: fit-content;
+    padding: 10px;
+    transition: background-color 100ms;
+    width: fit-content;
+}
+
+#todo-navigation button:enabled:active
+{
+    background-color: darkgray;
+}
+
+#todo-navigation p
+{
+    column-gap: 5px;
+    display: flex;
+}
+
 #add-todo
 {
     width: fit-content;

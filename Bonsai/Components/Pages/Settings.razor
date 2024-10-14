@@ -16,7 +16,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _pageContents = await FileService.ReadRawDataAsync("PageContents/Settings.json");
+        _pageContents ??= await FileService.ReadRawDataAsync(Files.SettingsPageContents);
     }
 
     private void OpenSettings()

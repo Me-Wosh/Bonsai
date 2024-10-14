@@ -2,6 +2,9 @@
   "en":
   {
     "hint": "Hint: Tap on task to see more details.",
+    "yesterday": "yesterday",
+    "today": "today",
+    "tomorrow": "tomorrow",
 
     "toDo":
     {

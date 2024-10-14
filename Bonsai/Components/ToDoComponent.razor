@@ -1,13 +1,13 @@
 ﻿<div class="todo-container">
 
-    @if (_isExpanded && !ToDo.IsCompleted)
+    @if (_isExpanded && !ToDo.IsCompleted && ToDo.Date >= DateTime.Today)
     {
         <div class="todo-actions">
             <img src="./icons/edit_icon.png" @onclick="OnEdited" />
 
             <span class="todo-actions-separator" />
 
-            <img @onclick="OnDeleted" src="./icons/trash_icon.png" />
+            <img src="./icons/trash_icon.png" @onclick="OnDeleted" />
         </div>
     }
 
@@ -20,7 +20,14 @@
                 @onchange="OnCompleted"
                 @onclick="@(() => _isExpanded = false)" 
             />
+            
             <img src="./icons/checkbox_checked_icon.png" class="icon" />
+
+            <div 
+                class="overlay"
+                style="background-color: @(ToDo.Date > DateTime.Today ? "rgba(255, 255, 255, 0.8);" : "transparent;")
+                       visibility: @(ToDo.Date > DateTime.Today ? "visible;" : "hidden;")"
+            />
         </div>
 
         <div class="details-container" @onclick="@(() => _isExpanded = !_isExpanded)">        
@@ -42,11 +49,18 @@
             }
 
             <div 
-                class="todo-overlay"
-                style="background-color: @(ToDo.IsCompleted ? "rgba(255, 255, 255, 0.8);" : "transparent;")
-                       visibility: @(ToDo.IsCompleted ? "visible;" : "hidden;")"
+                class="overlay"
+                style="background-color: @(ToDo.IsCompleted && ToDo.Date == DateTime.Today ? "rgba(255, 255, 255, 0.8);" : "transparent;")
+                       visibility: @(ToDo.IsCompleted && ToDo.Date == DateTime.Today ? "visible;" : "hidden;")"
             />
         </div>
+
+        <div 
+            class="overlay"
+            style="background-color: @(ToDo.Date < DateTime.Today ? "rgba(255, 255, 255, 0.8);" : "transparent;")
+                   visibility: @(ToDo.Date < DateTime.Today ? "visible;" : "hidden;")"
+            @onclick="() => _isExpanded = !_isExpanded"
+        />
     </div>
 
     @if (_isExpanded && ToDo.Description != null)
@@ -55,9 +69,9 @@
             <p>@ToDo.Description</p>
 
             <div 
-                class="description-overlay"
-                style="background-color: @(ToDo.IsCompleted ? "rgba(255, 255, 255, 0.8);" : "transparent;")
-                       visibility: @(ToDo.IsCompleted ? "visible;" : "hidden;")" 
+                class="overlay"
+                style="background-color: @(ToDo.IsCompleted || ToDo.Date < DateTime.Today ? "rgba(255, 255, 255, 0.8);" : "transparent;")
+                       visibility: @(ToDo.IsCompleted || ToDo.Date < DateTime.Today ? "visible;" : "hidden;")" 
             />
         </div>
     }
@@ -68,7 +82,7 @@
     private bool _isExpanded;
 
     [Parameter]
-    public ToDo ToDo { get; set; }
+    public required ToDo ToDo { get; set; }
 
     [Parameter]
     public string Easy { get; set; } = "Easy";

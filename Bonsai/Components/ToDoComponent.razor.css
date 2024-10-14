@@ -46,9 +46,8 @@
     border: 4px solid black;
     border-radius: 15px 0 0 15px;
     box-sizing: border-box;
-    column-gap: 15px;
     display: flex;
-    padding: 15px;
+    overflow: hidden;
     position: relative;
     width: 100%;
 }
@@ -58,6 +57,7 @@
     align-items: center;
     display: flex;
     justify-content: center;
+    margin: 5px;
     position: relative;
 }
 
@@ -67,7 +67,7 @@ input[type="checkbox"]
     height: 32px;
     padding: 15px;
     width: 32px;   
-    z-index: 3;
+    z-index: 1;
 }
 
 input[type="checkbox"]:checked ~ img
@@ -80,15 +80,17 @@ input[type="checkbox"]:checked ~ img
     display: none;
     position: absolute;
     top: 3px;
-    z-index: 2;
 }
 
 .details-container
 {
     align-items: center;
+    box-sizing: border-box;
+    column-gap: 10px;
     display: flex;
     flex: 1;
     height: 100%;
+    padding: 5px;
     position: relative;
 }
 
@@ -104,7 +106,6 @@ input[type="checkbox"]:checked ~ img
 
 .todo-difficulty
 {
-    background-color: lightgray;
     border: 3px solid black;
     border-radius: 10px;
     padding: 10px;
@@ -149,20 +150,15 @@ input[type="checkbox"]:checked ~ img
     word-break: break-word;
 }
 
-.todo-overlay, .description-overlay
+.overlay
 {
     height: 100%;
-    left: -1px;
+    left: 0;
     position: absolute;
-    width: 101%;
+    width: 100%;
     top: 0;
     transition: background-color 350ms;
     z-index: 1;
-}
-
-.todo-overlay
-{
-    border-radius: 15px 0 0 15px;
 }
 
 @keyframes expand-actions
