@@ -17,11 +17,11 @@ public static class MauiProgram
 
         builder.Services.AddAutoMapper(typeof(MauiProgram).Assembly);
 
-        builder.Services.AddSingleton<AppState>();
-
+        builder.Services.AddSingleton(TimeProvider.System);
         builder.Services.AddSingleton<IRepository<ToDo>, ToDoRepository>();
         builder.Services.AddScoped<IFileService, FileService>();
         builder.Services.AddScoped<ILocationService, LocationService>();
+        builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IWeatherService, WeatherService>();
 
 #if DEBUG

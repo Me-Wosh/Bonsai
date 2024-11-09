@@ -9,6 +9,7 @@ public static class Files
     public const string BonsaiTreePageContents = PageContentsBase + "BonsaiTree" + Extension;
     public const string SettingsPageContents = PageContentsBase + "Settings" + Extension;
     public const string ToDosPageContents = PageContentsBase + "ToDos" + Extension;
+    public const string IntensitySelectionModalPageContents = PageContentsBase + "IntensitySelectionModal" + Extension;
     private const string PageContentsBase = "PageContents/";
     private const string Extension = ".json";
 }

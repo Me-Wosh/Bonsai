@@ -2,6 +2,7 @@
   "en":
   {
     "pageTitle": "Settings",
-    "locationPermission": "Location Permission"
+    "locationPermission": "Location Permission",
+    "intensityGoal": "Intensity goal - currently:"
   }
 }

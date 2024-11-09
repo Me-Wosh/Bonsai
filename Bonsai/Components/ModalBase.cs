@@ -9,7 +9,7 @@ public class ModalBase : ComponentBase
     public string? HeaderText { get; set; }
 
     [Parameter]
-    public RenderFragment? BodyContent { get; set; }
+    public bool HideCancelButton { get; set; }
 
     [Parameter]
     public string FooterButtonText { get; set; } = "OK";

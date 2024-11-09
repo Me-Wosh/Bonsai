@@ -4,6 +4,11 @@
     <div class="modal-content slide@_animationType">
         <div class="modal-header">
             <p class="header-text">@HeaderText</p>
+            
+            @if (!HideCancelButton)
+            {
+                <p @onclick="CloseModal" class="cancel-button">X</p>
+            }
         </div>
 
         <div class="modal-body">
@@ -11,7 +16,7 @@
         </div>
 
         <div class="modal-footer">
-            <button class="default-button" @onclick="CloseModal">@FooterButtonText</button>
+            <button class="default-button" @onclick="HandleOnClickCallback">@FooterButtonText</button>
         </div>
     </div>
 </div>
@@ -24,4 +29,16 @@
     {
         _animationType = "out";
     }
+
+    private async Task HandleOnClickCallback()
+    {
+        CloseModal();
+        await OnClickCallback.InvokeAsync();
+    }
+
+    [Parameter]
+    public RenderFragment? BodyContent { get; set; }
+
+    [Parameter]
+    public EventCallback OnClickCallback { get; set; }
 }

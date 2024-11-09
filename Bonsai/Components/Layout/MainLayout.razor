@@ -1,5 +1,4 @@
 ﻿@inherits LayoutComponentBase
-@inject NavigationManager NavigationManager
 
 <div id="page">
     <div id="content">
@@ -7,63 +6,30 @@
     </div>
 
     <div id="navigation-bar">
-        <button @onclick="@(() => NavigationManager.NavigateTo("/"))">
-            <div class="navigation-icon-container">
-                <img 
-                    src="./icons/bonsai_icon.png" 
-                    style="@(_currentPage == "/" ? "height: 40px; width: 40px;" : "")" 
-                />
-            </div>
-        </button>
-        
+        <NavLink href="/" class="navlink" Match="NavLinkMatch.All">
+            <img src="./icons/bonsai_icon.png" class="icon" />
+            <img src="./icons/bonsai_icon_filled.png" class="icon filled-icon" />
+        </NavLink>
+
         <div class="navigation-items-separator" />
-        
-        <button @onclick="@(() => NavigationManager.NavigateTo("/ToDos"))">
-            <div class="navigation-icon-container">
-                <img 
-                    src="./icons/to_do_icon.png" 
-                    style="@(_currentPage == "/ToDos" ? "height: 40px; width: 40px;" : "")" 
-                />
-            </div>
-        </button>
-        
+
+        <NavLink href="/todos" class="navlink">
+            <img src="./icons/to_do_icon.png" class="icon" />
+            <img src="./icons/to_do_icon_filled.png" class="icon filled-icon" />
+        </NavLink>
+    
         <div class="navigation-items-separator" />
-        
-        <button @onclick="@(() => NavigationManager.NavigateTo("/Profile"))">
-            <div class="navigation-icon-container">
-                <img 
-                    src="./icons/profile_icon.png" 
-                    style="@(_currentPage == "/Profile" ? "height: 40px; width: 40px;" : "")" 
-                />
-            </div>
-        </button>
-        
+
+        <NavLink href="/profile" class="navlink">
+            <img src="./icons/profile_icon.png" class="icon" />
+            <img src="./icons/profile_icon_filled.png" class="icon filled-icon" />
+        </NavLink>
+
         <div class="navigation-items-separator" />
-        
-        <button @onclick="@(() => NavigationManager.NavigateTo("/Settings"))">
-            <div class="navigation-icon-container">
-                <img 
-                    src="./icons/settings_icon.png" 
-                    style="@(_currentPage == "/Settings" ? "height: 40px; width: 40px;" : "")"  
-                />
-            </div>
-        </button>
+
+        <NavLink href="/settings" class="navlink">
+            <img src="./icons/settings_icon.png" class="icon" />
+            <img src="./icons/settings_icon_filled.png" class="icon filled-icon" />
+        </NavLink>
     </div>
 </div>
-
-@code
-{
-    private string _currentPage = "/";
-
-    protected override void OnInitialized()
-    {
-        NavigationManager.LocationChanged += OnLocationChanged;
-    }
-
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs eventArgs)
-    {
-        // cut the localhost part from the uri
-        _currentPage = eventArgs.Location.Substring(eventArgs.Location.LastIndexOf("/"));
-        StateHasChanged();
-    }
-}

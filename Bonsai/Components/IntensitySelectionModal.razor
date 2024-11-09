@@ -1,0 +1,67 @@
+﻿@inject IFileService FileService
+@inject IUserService UserService
+
+<Modal 
+    HeaderText="@_pageContents?["en"]!["header"]!.ToString()"
+    HideCancelButton="@(FirstLaunch ? true : false)"
+    FooterButtonText="@(FirstLaunch ? _pageContents?["en"]!["button"]!["firstLaunch"]!.ToString() : _pageContents?["en"]!["button"]!["save"]!.ToString())" 
+    OnAnimationEndedCallback="@OnAnimationEndedCallback"
+    OnClickCallback="async () => await UserService.SetIntensityGoal(_intensity)"
+>
+    <BodyContent>
+        <div id="body-content">
+            <p>@_pageContents?["en"]!["tip"]</p>
+
+            <p>
+                <span class="bold">@_intensity</span> 
+                @(_intensity > 1 ? _pageContents?["en"]!["days"] : _pageContents?["en"]!["day"]) 
+                @_pageContents?["en"]!["aWeek"]
+            </p>
+
+            <input id="intensity" type="range" min="1" max="7" @bind="_intensity" @bind:event="oninput" />
+
+            @if (_intensity < 3)
+            {
+                <img class="intensity-icon" src="./icons/thumbs_up_icon.png" />
+                <p class="intensity-text">@_pageContents?["en"]!["intensity"]!["min"]</p>
+            }
+
+            else if (_intensity < 5)
+            {
+                <img class="intensity-icon" src="./icons/biceps_icon.png" />
+                <p class="intensity-text">@_pageContents?["en"]!["intensity"]!["medium"]</p>
+            }
+
+            else
+            {
+                <img class="intensity-icon" src="./icons/dumbbell_icon.png" />
+                <p class="intensity-text">@_pageContents?["en"]!["intensity"]!["max"]</p>
+            }
+        </div>
+    </BodyContent>
+</Modal>
+
+@code 
+{
+    private byte _intensity = 1;
+    private static JsonNode? _pageContents;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _pageContents ??= await FileService.ReadRawDataAsync(Files.IntensitySelectionModalPageContents);
+
+        if (Intensity != null)
+        {
+            _intensity = (byte)Intensity;
+        }
+    }
+
+    [Parameter]
+    public bool FirstLaunch { get; set; }
+
+    [Parameter]
+    public byte? Intensity { get; set; }
+
+    [Parameter]
+    public EventCallback<AnimationEndedEventArgs> OnAnimationEndedCallback { get; set; }
+}

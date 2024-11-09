@@ -12,6 +12,8 @@
     --orange: rgb(255, 190, 80);
     --red: rgb(255, 110, 100);
     --alert: #E32D2D;
+    --beige: rgba(190, 190, 0, 0.1);
+    --beige-highlight: rgb(225, 225, 200);
 }
 
 *
@@ -33,7 +35,7 @@ html, body
 
 body
 {
-    background-color: rgb(255, 255, 0, 0.1);
+    background-color: var(--beige);
 }
 
 #app

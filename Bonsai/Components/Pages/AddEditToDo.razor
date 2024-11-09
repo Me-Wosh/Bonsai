@@ -2,7 +2,6 @@
 @page "/EditToDo/{Id:int}"
 @inject NavigationManager NavigationManager
 @inject IMapper Mapper 
-@inject AppState AppState
 @inject IFileService FileService
 
 <div id="container">
@@ -16,7 +15,7 @@
         <p id="page-title">@_pageContents?["en"]!["pageTitle"]!["edit"] "<span>@_initialTitle</span>"</p>
     }
 
-    <EditForm Model="FormToDo" OnValidSubmit="HandleSubmitAsync" id="todo-form">
+    <EditForm Model="FormToDo" OnValidSubmit="HandleSubmit" id="todo-form">
         <DataAnnotationsValidator />
 
         <label>
@@ -105,10 +104,7 @@
     protected override async Task OnInitializedAsync()
     {
         _pageContents ??= await FileService.ReadRawDataAsync(Files.AddEditToDoPageContents);
-    }
 
-    protected override async Task OnParametersSetAsync()
-    {
         if (Id == null)
         {
             FormToDo.Date = SelectedDate;
@@ -136,7 +132,7 @@
     [Parameter]
     public int? Id { get; set; }
 
-    private async Task HandleSubmitAsync()
+    private async Task HandleSubmit()
     {
         FormToDo.Title = FormToDo.Title.Trim();
         FormToDo.Description = FormToDo.Description?.Trim();
@@ -158,7 +154,7 @@
             await App.ToDoRepository.UpdateAsync(toDo);
         }
 
-        NavigationManager.NavigateTo($"/ToDos/{toDo.Date.ToString("yyyy-MM-dd")}");
+        NavigationManager.NavigateTo($"/todos/{toDo.Date.ToString("yyyy-MM-dd")}");
     }
 
     private void OnToDoTitleInput(ChangeEventArgs e)

@@ -2,10 +2,12 @@
 
 public class User : UserData
 {
+    public DateTime? DateLeveledUp { get; set; }
+    public DateTime? DateProgressStarted { get; set; }
     public bool LocationUsageAcknowledged { get; set; }
-    public bool IntensitySelected { get; set; }
     public byte IntensityGoal { get; set; }
     public byte IntensityProgress { get; set; }
     public byte BonsaiStage { get; set; }
-    public uint Streak { get; set; }
+    public byte BonsaiMaxStage { get; } = 14;
+    public DateTime? DateBonsaiMaxStageReached { get; set; }
 }

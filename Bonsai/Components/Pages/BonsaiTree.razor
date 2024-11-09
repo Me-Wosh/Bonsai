@@ -1,11 +1,20 @@
 ﻿@page "/"
 @implements IDisposable
-@inject AppState AppState
+@inherits PageWithModal
 @inject IFileService FileService
 @inject ILocationService LocationService
+@inject IUserService UserService
 @inject IWeatherService WeatherService
 
 <div id="container">
+    <div id="streak-container">
+        <img src="./icons/plant_icon.png" />
+
+        <p>@UserService.Streak</p>
+
+        <p id="streak-tooltip">@_pageContents?["en"]!["streakTooltip"]</p>
+    </div>
+
     <div id="window-section">
         <div id="window-container">
             <img id="weather" src="./images/weather/@_weatherImagePath" />
@@ -14,7 +23,7 @@
     </div>
 
     <div id="tree-section">
-        <img src="./images/window.png" />
+        <p>tree stage: @UserService.BonsaiStage</p>
     </div>
 </div>
 
@@ -26,30 +35,21 @@
 @if (_showLocationUsageModal)
 {
     <InfoModal
-        HeaderText="@_pageContents?["en"]!["locationUsageModal"]!["header"]!.ToString()"
-        BodyText="@_pageContents?["en"]!["locationUsageModal"]!["body"]!.ToString()"
-        FooterButtonText="@_pageContents?["en"]!["locationUsageModal"]!["button"]!.ToString()" 
-        OnAnimationEndedCallback="HideLocationInfoModalAsync" 
+        HeaderText="@_pageContents?["en"]!["modal"]!["locationUsage"]!["header"]!.ToString()"
+        BodyText="@_pageContents?["en"]!["modal"]!["locationUsage"]!["body"]!.ToString()"
+        FooterButtonText="@_pageContents?["en"]!["modal"]!["locationUsage"]!["button"]!.ToString()" 
+        OnAnimationEndedCallback="HideLocationInfoModal" 
     />
 }   
 
 @if (_showLocationTurnedOffModal)
 {
     <InfoModal 
-        HeaderText="@_pageContents?["en"]!["locationTurnedOffModal"]!["header"]!.ToString()"
-        BodyText="@_pageContents?["en"]!["locationTurnedOffModal"]!["body"]!.ToString()"
-        OnAnimationEndedCallback="(AnimationEndedEventArgs eventArgs) => HideModal(eventArgs, ref _showLocationTurnedOffModal)"
+        HeaderText="@_pageContents?["en"]!["modal"]!["locationTurnedOff"]!["header"]!.ToString()"
+        BodyText="@_pageContents?["en"]!["modal"]!["locationTurnedOff"]!["body"]!.ToString()"
+        OnAnimationEndedCallback="(eventArgs) => HideModal(eventArgs, ref _showLocationTurnedOffModal)"
     />
-}   
-
-@if (_showLocationRejectionModal)
-{
-    <InfoModal
-        HeaderText="@_pageContents?["en"]!["locationRejectionModal"]!["header"]!.ToString()"
-        BodyText="@_pageContents?["en"]!["locationRejectionModal"]!["body"]!.ToString()"
-        OnAnimationEndedCallback="(AnimationEndedEventArgs eventArgs) => HideModal(eventArgs, ref _showLocationRejectionModal)"
-    />
-}   
+}
 
 @code
 {
@@ -59,15 +59,16 @@
     private static bool _isBusy;
     private bool _showLocationUsageModal;
     private bool _showLocationTurnedOffModal;
-    private bool _showLocationRejectionModal;
 
     protected override async Task OnInitializedAsync()
     {
+        await UserService.ResetBonsaiIfGoalNotAchievable();
+
         WeatherChanged += StateHasChanged;
 
         _pageContents ??= await FileService.ReadRawDataAsync(Files.BonsaiTreePageContents);
             
-        if (!AppState.User.LocationUsageAcknowledged)
+        if (!UserService.LocationUsageAcknowledged)
         {
             _showLocationUsageModal = true;
             return;
@@ -117,24 +118,17 @@
 
     private async Task HandleLocationUsagePermission(GeoLocationResponseStatus status)
     {
-        if (AppState.User.LocationUsageAcknowledged)
+        if (UserService.LocationUsageAcknowledged)
         {
             return;
         }
 
-        AppState.User.LocationUsageAcknowledged = true;
-
-        await FileService.UpdateUserDataAsync(Files.User, AppState.User);
+        await UserService.LocationUsageWasAcknowledged();
 
         if (status == GeoLocationResponseStatus.NotEnabled)
         {
             _showLocationTurnedOffModal = true;
         }
-
-        else if (status == GeoLocationResponseStatus.NoPermission)
-        {
-            _showLocationRejectionModal = true;
-        }     
     }
 
     private static string GetWeatherImagePath()
@@ -189,19 +183,7 @@
         return DayPart.Night;
     }
 
-    private bool HideModal(AnimationEndedEventArgs eventArgs, ref bool modalFlag)
-    {
-        if (eventArgs.AnimationName != "fadeout")
-        {
-            return false;
-        }
-
-        modalFlag = false;
-
-        return true;
-    }
-
-    private async Task HideLocationInfoModalAsync(AnimationEndedEventArgs eventArgs)
+    private async Task HideLocationInfoModal(AnimationEndedEventArgs eventArgs)
     {
         if (!HideModal(eventArgs, ref _showLocationUsageModal))
         {

@@ -5,14 +5,15 @@ namespace Bonsai;
 
 public partial class App : Application
 {
-    public App(AppState appState, IFileService fileService, IRepository<ToDo> repository)
+    public App(IRepository<ToDo> repository, IUserService userService)
     {
         InitializeComponent();
 
         MainPage = new MainPage();
 
-        appState.User = fileService.LoadUser();
         ToDoRepository = repository;
+
+        userService.LoadUser();
     }
 
     public static IRepository<ToDo> ToDoRepository { get; private set; }

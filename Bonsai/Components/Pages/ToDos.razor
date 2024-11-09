@@ -1,25 +1,31 @@
-﻿@page "/ToDos/{SelectedDate:datetime?}"
+﻿@page "/todos/{SelectedDate:datetime?}"
+@inherits PageWithModal
 @inject IJSRuntime JavaScript
 @inject NavigationManager NavigationManager
-@inject AppState AppState
 @inject IFileService FileService
+@inject IUserService UserService
 
 <div id="progress-container">
-    <div id="progress-background">
-        <div id="progress-foreground" style="height: @(SelectedDateCompletedToDos())%;"/>
+    <div id="progress">
+        <p>@_pageContents?["en"]!["progress"]:</p>
+        <p>@UserService.IntensityProgress / @UserService.IntensityGoal</p>
+    </div>
 
-        <p id="progress-percentage">@((int)SelectedDateCompletedToDos())%</p>
+    <div id="today-progress-background">
+        <div id="today-progress-foreground" style="height: @(SelectedDateCompletedToDosPercentage())%;"/>
+
+        <p id="today-progress-percentage">@((int)SelectedDateCompletedToDosPercentage())%</p>
+    </div>
+
+    <div id="days-left">
+        <p>@_pageContents?["en"]!["daysLeft"]:</p>
+        <p>@UserService.DaysLeft</p>
     </div>
 </div>
 
 <div id="content-container">
     <div id="todo-navigation">
-        <button 
-            disabled="@(!_toDoList.Exists(t => t.Date < _selectedDate))" 
-            @onclick="() => _selectedDate = _selectedDate.AddDays(-1)"
-        >
-            &lt;
-        </button>
+        <button disabled="@(_selectedDate <= _oldestToDoDate)" @onclick="PreviousToDos">&lt;</button>
 
         <p> 
             @if (_selectedDate == DateTime.Today.AddDays(-1))
@@ -40,12 +46,7 @@
             @_selectedDate.ToShortDateString()
         </p>
 
-        <button 
-            disabled="@(_selectedDate >= DateTime.Today.AddDays(30))" 
-            @onclick="() => _selectedDate = _selectedDate.AddDays(1)"
-        >
-            &gt;
-        </button>
+        <button disabled="@(_selectedDate >= DateTime.Today.AddDays(30))" @onclick="NextToDos">&gt;</button>
     </div>
 
     @if (_selectedDate >= DateTime.Today)
@@ -53,13 +54,13 @@
         <button class="default-button" id="add-todo" @onclick="AddToDo">@_pageContents?["en"]!["toDo"]!["add"]</button>
     }
 
-    @if (_toDoList.Where(t => t.Date == _selectedDate).Count() > 0)
+    @if (_selectedDateToDoList.Count > 0)
     {
         <p>@_pageContents?["en"]!["hint"]</p>
     }
 
     <div id="todos-container">
-        @foreach (var toDo in _toDoList.Where(t => t.Date == _selectedDate))
+        @foreach (var toDo in _selectedDateToDoList)
         {
             <ToDoComponent 
                 @key="toDo.Id"
@@ -67,9 +68,9 @@
                 Easy="@_pageContents?["en"]!["toDo"]!["difficulty"]!["easy"]!.ToString()"
                 Medium="@_pageContents?["en"]!["toDo"]!["difficulty"]!["medium"]!.ToString()"
                 Hard="@_pageContents?["en"]!["toDo"]!["difficulty"]!["hard"]!.ToString()"
-                OnCompleted="async () => await UpdateToDoAsync(toDo)"
+                OnCompleted="async () => await UpdateToDo(toDo)"
                 OnEdited="() => EditToDo(toDo.Id)"
-                OnDeleted="async () => await DeleteToDoAsync(toDo)"
+                OnDeleted="async () => await DeleteToDo(toDo)"
             />
         }
     </div>
@@ -82,78 +83,41 @@
 
 @if (_showIntensitySelectionModal)
 {
-    <Modal
-        HeaderText="@_pageContents?["en"]!["modal"]!["header"]!.ToString()"
-        FooterButtonText="@_pageContents?["en"]!["modal"]!["button"]!.ToString()"
-        OnAnimationEndedCallback="HideModalAsync"
-    >
-        <BodyContent>
-            <div id="body-content">
-                <p>@_pageContents?["en"]!["modal"]!["tip"]</p>
-
-                <p>
-                    <span class="bold">@_intensity</span> 
-                    @(_intensity > 1 ? _pageContents?["en"]!["modal"]!["days"] : _pageContents?["en"]!["modal"]!["day"]) 
-                    @_pageContents?["en"]!["modal"]!["aWeek"]
-                </p>
-
-                <input id="intensity" type="range" min="1" max="7" @bind="_intensity" @bind:event="oninput" />
-
-                @if (_intensity < 3)
-                {
-                    <img class="intensity-icon" src="./icons/thumbs_up_icon.png" />
-                    <p class="intensity-text">@_pageContents?["en"]!["modal"]!["intensity"]!["min"]</p>
-                }
-
-                else if (_intensity < 5)
-                {
-                    <img class="intensity-icon" src="./icons/biceps_icon.png" />
-                    <p class="intensity-text">@_pageContents?["en"]!["modal"]!["intensity"]!["medium"]</p>
-                }
-
-                else
-                {
-                    <img class="intensity-icon" src="./icons/dumbbell_icon.png" />
-                    <p class="intensity-text">@_pageContents?["en"]!["modal"]!["intensity"]!["max"]</p>
-                }
-            </div>
-        </BodyContent>
-    </Modal>
+    <IntensitySelectionModal 
+        FirstLaunch="true" 
+        OnAnimationEndedCallback="(eventArgs) => HideModal(eventArgs, ref _showIntensitySelectionModal)" 
+    />
 }
 
 @code
 {
     private static JsonNode? _pageContents;
     private List<ToDo> _toDoList = new();
+    private List<ToDo> _selectedDateToDoList = new();
     private DateTime _selectedDate = DateTime.Today;
+    private DateTime _oldestToDoDate;
     private bool _showIntensitySelectionModal;
-    private byte _intensity = 1;
 
     protected override async Task OnInitializedAsync()
     {
-        if (_pageContents == null)
-        {
-            _pageContents = await FileService.ReadRawDataAsync(Files.ToDosPageContents);
-        }
+        _pageContents ??= await FileService.ReadRawDataAsync(Files.ToDosPageContents);
 
-        if (!AppState.User.IntensitySelected)
+        if (!UserService.IntensitySelected)
         {
             _showIntensitySelectionModal = true;
         }
 
         _toDoList = await App.ToDoRepository.GetAllAsync();
-    }
 
-    protected override void OnParametersSet()
-    {
-        if (SelectedDate == null)
+        if (SelectedDate != null)
         {
-            return;
+            _selectedDate = (DateTime)SelectedDate;
+            await UserService.UpdateBonsaiStage((int)SelectedDateCompletedToDosPercentage());
         }
 
-        _selectedDate = (DateTime)SelectedDate;    
+        _selectedDateToDoList = _toDoList.Where(t => t.Date == _selectedDate).ToList();
+        _oldestToDoDate = _toDoList.Min(t => t.Date);
     }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await JavaScript.InvokeVoidAsync("matchWidth", ".todo-difficulty");
@@ -161,6 +125,18 @@
 
     [Parameter]
     public DateTime? SelectedDate { get; set; }
+
+    private void PreviousToDos()
+    {
+        _selectedDate = _selectedDate.AddDays(-1);
+        _selectedDateToDoList = _toDoList.Where(t => t.Date == _selectedDate).ToList();
+    }
+
+    private void NextToDos()
+    {
+        _selectedDate = _selectedDate.AddDays(1);
+        _selectedDateToDoList = _toDoList.Where(t => t.Date == _selectedDate).ToList();
+    }
 
     private void AddToDo()
     {
@@ -172,42 +148,25 @@
         NavigationManager.NavigateTo($"/EditToDo/{id}");
     }
 
-    private async Task UpdateToDoAsync(ToDo toDo)
+    private async Task UpdateToDo(ToDo toDo)
     {
+        await UserService.UpdateBonsaiStage((int)SelectedDateCompletedToDosPercentage());
         await App.ToDoRepository.UpdateAsync(toDo);
     }
 
-    private async Task DeleteToDoAsync(ToDo toDo)
+    private async Task DeleteToDo(ToDo toDo)
     {
         _toDoList.Remove(toDo);
         await App.ToDoRepository.DeleteAsync(toDo);
     }
 
-    private float SelectedDateCompletedToDos()
+    private float SelectedDateCompletedToDosPercentage()
     {
-        var allSelectedDateToDos = _toDoList.Where(t => t.Date == _selectedDate);
-        var allSelectedDateToDosCount = allSelectedDateToDos.Count();
-
-        if (allSelectedDateToDosCount <= 0)
+        if (_selectedDateToDoList.Count <= 0)
         {
             return 0f;
         }
 
-        return (float)allSelectedDateToDos.Where(t => t.IsCompleted).Count() / allSelectedDateToDosCount * 100;
-    }
-
-    private async Task HideModalAsync(AnimationEndedEventArgs eventArgs)
-    {
-        if (eventArgs.AnimationName != "fadeout")
-        {
-            return;
-        }
-
-        _showIntensitySelectionModal = false;
-
-        AppState.User.IntensitySelected = true;
-        AppState.User.IntensityGoal = _intensity;
-
-        await FileService.UpdateUserDataAsync(Files.User, AppState.User);
+        return (float)_selectedDateToDoList.Where(t => t.IsCompleted).Count() / _selectedDateToDoList.Count * 100;
     }
 }

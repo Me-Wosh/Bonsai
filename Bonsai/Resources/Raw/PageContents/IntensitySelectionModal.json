@@ -1,0 +1,23 @@
+{
+  "en":
+  {
+    "header": "Select intensity",
+    "tip": "Select how intensively you will work towards your productivity and goals.",
+    "day": "day",
+    "days": "days",
+    "aWeek": "a week",
+
+    "intensity":
+    {
+      "min": "Good",
+      "medium": "Great",
+      "max": "Amazing"
+    },
+    
+    "button":
+    {
+      "firstLaunch": "Let's start!",
+      "save": "Save"
+    }
+  } 
+}

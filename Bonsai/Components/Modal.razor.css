@@ -38,6 +38,12 @@
     font-weight: bold;
 }
 
+.cancel-button
+{
+    font-size: 20px;
+    font-weight: 900;
+}
+
 .modal-body
 {
     padding: 20px;

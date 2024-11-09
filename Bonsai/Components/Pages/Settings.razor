@@ -1,25 +1,41 @@
 ﻿@page "/settings"
+@inherits PageWithModal
 @inject IFileService FileService
+@inject IUserService UserService
 
 <div id="container">
     <p id="settings-header">@_pageContents?["en"]!["pageTitle"]</p>
 
-    <div class="setting" @onclick="OpenSettings">
+    <div class="setting" @onclick="OpenAppSettings">
         <p>@_pageContents?["en"]!["locationPermission"]</p>
         <img class="icon" src="./icons/external_link_icon.png" />        
     </div>
+
+    <div class="setting" @onclick="() => _showIntensitySelectionModal = true">
+        <p>@_pageContents?["en"]!["intensityGoal"] @UserService.IntensityGoal</p>
+        <img class="icon" src="./icons/slider_icon.png" />
+    </div>
 </div>
+
+@if (_showIntensitySelectionModal)
+{
+    <IntensitySelectionModal 
+        Intensity="@UserService.IntensityGoal"
+        OnAnimationEndedCallback="(eventArgs) => HideModal(eventArgs, ref _showIntensitySelectionModal)" 
+    />
+}
 
 @code 
 {
     private JsonNode? _pageContents;
+    private bool _showIntensitySelectionModal;
 
     protected override async Task OnInitializedAsync()
     {
         _pageContents ??= await FileService.ReadRawDataAsync(Files.SettingsPageContents);
     }
 
-    private void OpenSettings()
+    private void OpenAppSettings()
     {
         AppInfo.Current.ShowSettingsUI();
     }
