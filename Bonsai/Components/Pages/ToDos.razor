@@ -157,6 +157,8 @@
     private async Task DeleteToDo(ToDo toDo)
     {
         _toDoList.Remove(toDo);
+        _selectedDateToDoList.Remove(toDo);
+        await UserService.UpdateBonsaiStage((int)SelectedDateCompletedToDosPercentage());
         await App.ToDoRepository.DeleteAsync(toDo);
     }
 

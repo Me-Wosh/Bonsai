@@ -1,8 +1,255 @@
 ﻿@page "/profile"
+@inject IFileService FileService
+@inject IUserService UserService
 
-<h3>Profile</h3>
+<div id="container">
+    <div id="personal-info">
+        <div id="user-image-container">
+            @if (UserService.ProfilePicture == null)
+            {
+                <img 
+                    id="placeholder-profile-icon" 
+                    src="./icons/profile_icon.png" 
+                    @onclick="@(() => UserService.SetProfilePicture("Select your profile picture"))"
+                />
+            }
+
+            else
+            {
+                <img 
+                    id="profile-icon" 
+                    src="data:image;base64, @UserService.ProfilePicture" 
+                    @onclick="@(() => UserService.SetProfilePicture("Select your profile picture"))"
+                />
+            }
+
+            <img id="edit-image-icon" src="./icons/edit_icon_filled.png" />
+        </div>
+
+        @if (UserService.Username == null || _showUsernameInput)
+        {
+            <label id="username-label" @onfocusout="UpdateUsername">
+                @_pageContents?["en"]!["usernameLabel"]
+
+                <InputText 
+                    maxlength="@(DataAnnotationsHelper.GetMaxLengthAttribute(typeof(User), "Username"))" 
+                    id="username-input" 
+                    @ref="_usernameInput" 
+                    @bind-Value="_username" 
+                />
+            </label>
+        }
+
+        else
+        {
+            <p id="welcome-user" @onclick="() => _showUsernameInput = true">
+                @_pageContents?["en"]!["helloMessage"],
+
+                <span id="username">
+                    @UserService.Username
+                    <img id="edit-username-icon" src="./icons/edit_icon_filled.png" />
+                </span>
+            </p>
+        }
+    </div>
+
+    <div id="stats">
+        <p id="date-joined">@_pageContents?["en"]!["dateJoined"]: @UserService.DateJoined.ToShortDateString()</p>
+
+        <div id="current-streak">
+            <p>@_pageContents?["en"]!["streak"]!["current"]:</p>
+
+            <div>
+                <img src="./icons/plant_icon.png" />
+                <p>@UserService.Streak</p>
+            </div>
+        </div>
+
+        <div id="record-streak">
+            <p>@_pageContents?["en"]!["streak"]!["record"]:</p> 
+
+            <div>
+                <img src="./icons/plant_icon_gold.png" />
+                <p>@UserService.RecordStreak</p>
+            </div>
+        </div>
+
+        <div id="percentage-summary"> 
+            <p>@_pageContents?["en"]!["percentageDiagram"]!["last30Days"]:</p>
+
+            <div id="percentage-container">
+                <div id="percentage-diagram">
+                    <svg viewBox="-5.5 0 70 32" xmlns="http://www.w3.org/2000/svg">
+                        <path 
+                            id="outline-path"
+                            d="M @_startX,@_startY A @_radius,@_radius 0 0 1 @(_startX + 2 * _radius),@_startY" 
+                        />
+
+                        <path 
+                            id="hard" 
+                            d="M @_startX,@_startY A @_radius,@_radius 0 0 1 @_endCoordinates[2][0],@_endCoordinates[2][1]"
+                        />
+
+                        <path 
+                            id="medium"
+                            d="M @_startX,@_startY A @_radius,@_radius 0 0 1 @_endCoordinates[1][0],@_endCoordinates[1][1]" 
+                        />
+
+                        <path 
+                            id="easy" 
+                            d="M @_startX,@_startY A @_radius,@_radius 0 0 1 @_endCoordinates[0][0],@_endCoordinates[0][1]"
+                        />
+
+                        <path 
+                            id="outline-bottom-left" 
+                            d="M @(_startX - 8.4),@_startY L @(_startX + 8.5),@_startY" 
+                        />
+
+                        <path 
+                            id="outline-bottom-right" 
+                            d="M @(_startX + _radius * 2 - 8.5),@_startY L @(_startX + _radius * 2 + 8.4),@_startY" 
+                        />
+                    </svg>
+
+                    <p>@_pageContents?["en"]!["percentageDiagram"]!["completed"]: @CompletionRate() %</p>
+                </div>
+
+                <div id="percentage-by-difficulty">
+                    <div>
+                        <p>@_pageContents?["en"]!["percentageDiagram"]!["easy"]:</p>
+                        <p>@_pageContents?["en"]!["percentageDiagram"]!["medium"]:</p>
+                        <p>@_pageContents?["en"]!["percentageDiagram"]!["hard"]:</p>
+                    </div>
+
+                    <div id="percentage-values">
+                        <p>@_toDoCounts[0] / @_toDoList.Count</p>
+                        <p>@_toDoCounts[1] / @_toDoList.Count</p>
+                        <p>@_toDoCounts[2] / @_toDoList.Count</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code 
 {
+    private static JsonNode? _pageContents;
+    private List<ToDo> _toDoList = [];
+    private InputText? _usernameInput;
+    private bool _showUsernameInput;
+    private string _username = "";
+    private int _completedCount = 0;
+    private int _radius = 20;
+    private int _startX = 10;
+    private int _startY = 30;
+    private int[] _toDoCounts = [0, 0, 0];
+    private double[][] _endCoordinates = [ [10, 30], [10, 30], [10, 30] ];
 
+    protected override async Task OnInitializedAsync()
+    {
+        _pageContents ??= await FileService.ReadRawDataAsync(Files.ProfilePageContents);
+        _toDoList = await App.ToDoRepository.GetAllAsync();
+
+        if (UserService.Username == null)
+        {
+            _showUsernameInput = true;
+        }
+
+        else
+        {
+            _username = UserService.Username;
+        }
+
+        CalculateCompletionRates();
+        DrawProgress();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_usernameInput != null && _usernameInput.Element != null && (_showUsernameInput || UserService.Username == null))
+        {
+            await _usernameInput.Element.Value.FocusAsync();   
+        }
+    }
+
+    private async Task UpdateUsername()
+    {
+        _username = _username.Trim();
+        _showUsernameInput = false;
+        await UserService.SetUsername(_username);
+    }
+
+    private void CalculateCompletionRates()
+    {
+        foreach (var toDo in _toDoList)
+        {
+            if (toDo.IsCompleted)
+            {
+                _completedCount++;
+            }
+
+            switch (toDo.Difficulty)
+            {
+                case Difficulty.Easy:
+                {
+                    _toDoCounts[0]++;
+                    break;
+                }
+
+                case Difficulty.Medium:
+                {
+                    _toDoCounts[1]++;
+                    break;
+                }
+
+                case Difficulty.Hard:
+                {
+                    _toDoCounts[2]++;
+                    break;
+                }
+
+                default:
+                {
+                    throw new ArgumentException(
+                        $"Difficulty can either be {Difficulty.Easy}, {Difficulty.Medium} or {Difficulty.Hard}");
+                }
+            }
+        }
+    }
+
+    private void DrawProgress()
+    {
+        if (_toDoList.Count == 0)
+        {
+            return;
+        }
+
+        var centerX = _startX + _radius;
+
+        var easyPercentage = (float)_toDoCounts[0] / _toDoList.Count;
+        // make medium percentage look like its being drawn from where the easy one ends
+        var mediumPercentage = (float)_toDoCounts[1] / _toDoList.Count + easyPercentage;
+        // make hard percentage look like its being drawn from where the medium one ends
+        var hardPercentage = (float)_toDoCounts[2] / _toDoList.Count + mediumPercentage;
+
+        _endCoordinates[0][0] = centerX - _radius * Math.Cos(easyPercentage * Math.PI);
+        _endCoordinates[0][1] = _startY - _radius * Math.Sin(easyPercentage * Math.PI);
+
+        _endCoordinates[1][0] = centerX - _radius * Math.Cos(mediumPercentage * Math.PI);
+        _endCoordinates[1][1] = _startY - _radius * Math.Sin(mediumPercentage * Math.PI);
+
+        _endCoordinates[2][0] = centerX - _radius * Math.Cos(hardPercentage * Math.PI);
+        _endCoordinates[2][1] = _startY - _radius * Math.Sin(hardPercentage * Math.PI);
+    }
+
+    private int CompletionRate()
+    {
+        if (_toDoList.Count == 0)
+        {
+            return 0;
+        }
+
+        return (int)((float)_completedCount / _toDoList.Count * 100);
+    }
 }

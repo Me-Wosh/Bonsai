@@ -1,0 +1,212 @@
+#personal-info
+{
+    align-items: center;
+    background-color: var(--green);
+    border-bottom: 4px solid black;
+    column-gap: 20px;
+    display: flex;
+    justify-content: flex-start;
+    padding: 15px;
+}
+
+#user-image-container
+{
+    position: relative;
+}
+
+#placeholder-profile-icon, #profile-icon
+{
+    border: 3px solid black;
+    border-radius: 5px;
+    box-sizing: border-box;
+    height: 90px;
+    width: 90px;
+}
+
+#placeholder-profile-icon
+{
+    background-color: rgb(90, 90, 90);
+    padding: 5px;
+}
+
+#profile-icon
+{
+    background-color: white;
+    object-fit: contain;
+}
+
+#edit-image-icon
+{
+    height: 24px;
+    position: absolute;
+    right: -12px;
+    top: -12px;
+    width: 24px;
+}
+
+#username-label
+{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+::deep #username-input
+{
+    border: 3px solid black;
+    border-radius: 5px;
+    box-sizing: border-box;
+    padding: 5px;
+    width: 100%;
+}
+
+#welcome-user
+{
+    font-size: 20px;   
+}
+
+#username
+{
+    font-size: 20px;
+    font-weight: 900;
+    position: relative;
+    word-break: break-word;
+}
+
+#edit-username-icon
+{   
+    height: 18px;
+    margin-left: 5px;
+    position: absolute;
+    width: 18px;    
+}
+
+#stats
+{
+    display: grid;
+    gap: 10px;
+    grid-template: 
+        auto auto auto
+        / 1fr 1fr;
+    padding: 15px
+}
+
+#stats > div, #stats > p
+{
+    align-items: center;
+    background-color: var(--beige);
+    border: 3px solid black;
+    border-radius: 10px;
+    box-shadow: 5px 5px 10px darkgray;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+}
+
+#date-joined
+{
+    grid-column: 1 / 3;
+}
+
+#current-streak, #record-streak
+{
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#current-streak div, #record-streak div
+{
+    align-items: center;
+    column-gap: 5px;
+    display: flex;
+    justify-content: center;
+}
+
+#percentage-summary
+{
+    display: flex;
+    flex-direction: column;
+    grid-column: 1 / 3;
+    row-gap: 10px;
+}
+
+#percentage-container
+{
+    column-gap: 5px;
+    display: flex;
+    justify-content: space-between;
+}
+
+#percentage-diagram
+{
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+svg
+{
+    width: 100%;   
+}
+
+path
+{
+    fill: none;
+    stroke-opacity: 1;
+    stroke-width: 15;
+}
+
+#outline-path
+{
+    stroke: black;
+    stroke-width: 17;
+}
+
+#easy
+{
+    stroke: var(--green);
+}
+
+#medium
+{
+    stroke: var(--orange);
+}
+
+#hard
+{
+    stroke: var(--red);
+}
+
+#outline-bottom-left, #outline-bottom-right
+{
+    stroke: black;
+    stroke-width: 0.9;
+}
+
+#percentage-by-difficulty
+{
+    column-gap: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+#percentage-by-difficulty div
+{   
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#percentage-values
+{
+    display: flex;
+    justify-content: flex-end;
+}
+
+#percentage-values p
+{
+    inline-size: max-content;
+}

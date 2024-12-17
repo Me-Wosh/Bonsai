@@ -4,15 +4,19 @@
 @inject IMapper Mapper 
 @inject IFileService FileService
 
-<div id="container">
+<div>
     @if (Id == null)
     {
-        <p id="page-title">@_pageContents?["en"]!["pageTitle"]!["new"]</p>
+        <p id="page-title">
+            @_pageContents?["en"]!["pageTitle"]!["new"]
+        </p>
     }
 
     else
     {
-        <p id="page-title">@_pageContents?["en"]!["pageTitle"]!["edit"] "<span>@_initialTitle</span>"</p>
+        <p id="page-title">
+            @_pageContents?["en"]!["pageTitle"]!["edit"]"<span>@_initialTitle</span>"
+        </p>
     }
 
     <EditForm Model="FormToDo" OnValidSubmit="HandleSubmit" id="todo-form">
@@ -30,7 +34,7 @@
                 maxlength="@_titleMaxLength" 
             />
             <p class="characters-left-indicator">
-                <span style="color: @(_titleLength > _titleMaxLength ? "var(--red)" : "initial")">@_titleLength</span> / @_titleMaxLength
+                @_titleLength / @_titleMaxLength
             </p>
         </label>
 
@@ -50,7 +54,7 @@
             />
 
             <p class="characters-left-indicator">
-                <span style="color: @(_descriptionLength > _descriptionMaxLength ? "var(--red)" : "initial")">@_descriptionLength</span> / @_descriptionMaxLength
+                @_descriptionLength / @_descriptionMaxLength
             </p>
         </label>
 
@@ -95,9 +99,9 @@
 {
     private static JsonNode? _pageContents;
     private int _titleLength = 0;
-    private int _titleMaxLength = 50;
+    private int _titleMaxLength = DataAnnotationsHelper.GetMaxLengthAttribute(typeof(FormToDo), "Title");
     private int _descriptionLength = 0;
-    private int _descriptionMaxLength = 150;
+    private int _descriptionMaxLength = DataAnnotationsHelper.GetMaxLengthAttribute(typeof(FormToDo), "Description");
     private string? _initialTitle;
     private string _titleValidationStyle = "display: none";
 

@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using Bonsai.Helpers;
 using Bonsai.Models;
 
 namespace Bonsai.Services;
@@ -14,19 +16,29 @@ public class UserService : IUserService
         _timeProvider = timeProvider;
     }
 
+    public DateTime DateJoined => _user.DateJoined;
     public bool LocationUsageAcknowledged => _user.LocationUsageAcknowledged;
     public bool IntensitySelected => _user.IntensityGoal > 0;
     public byte IntensityGoal => _user.IntensityGoal;
     public byte IntensityProgress => _user.IntensityProgress;
     public byte BonsaiStage => _user.BonsaiStage;
-    public int Streak => (int?)(Today - _user.DateProgressStarted)?.TotalDays + 1 ?? 0;
+    public int Streak => (int?)(Today - _user.DateLevelingStarted)?.TotalDays + 1 ?? 0;
+    public int RecordStreak => _user.RecordStreak;
     public int DaysLeft => Today.DayOfWeek == DayOfWeek.Sunday ? 0 : 7 - (int)Today.DayOfWeek;
+    public string? Username => _user.Username;
+    public string? ProfilePicture => _user.ProfilePicture != null ? Convert.ToBase64String(_user.ProfilePicture) : null;
     private bool TodayLeveledUp => Today.Date == _user.DateLeveledUp?.Date;
     private DateTime Today => _timeProvider.GetLocalNow().DateTime;
 
-    public void LoadUser()
+    public async Task LoadUser()
     {
         _user = _fileService.LoadUser();
+
+        if (Streak > RecordStreak)
+        {
+            _user.RecordStreak = Streak;
+            await UpdateUser();
+        }
     }
 
     public async Task LocationUsageWasAcknowledged()
@@ -39,6 +51,53 @@ public class UserService : IUserService
     {
         _user.IntensityGoal = intensityGoal;
         await UpdateUser();
+    }
+
+    public async Task<bool> SetUsername(string username)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            return false;
+        }
+
+        username = username.Trim();
+        var maxLength = DataAnnotationsHelper.GetMaxLengthAttribute(_user.GetType(), nameof(_user.Username));
+
+        if (username == _user.Username || username.Length > maxLength)
+        {
+            return false;
+        }
+
+        _user.Username = username;
+        await UpdateUser();
+        return true;
+    }
+
+    public async Task SetProfilePicture(string title)
+    {
+        try
+        {
+            var options = new PickOptions 
+            {
+                FileTypes = FilePickerFileType.Images,
+                PickerTitle = title
+            };
+
+            var result = await FilePicker.Default.PickAsync(options);
+
+            if (result == null)
+            {
+                return;
+            }
+
+            _user.ProfilePicture = await File.ReadAllBytesAsync(result.FullPath);
+            await UpdateUser();
+        }
+
+        catch (Exception exception)
+        {
+            Debug.WriteLine(exception);
+        }
     }
 
     public async Task<bool> ResetBonsaiIfGoalNotAchievable()
@@ -55,7 +114,7 @@ public class UserService : IUserService
             return false;
         }
 
-        if (_user.DateProgressStarted == null || _user.IntensityProgress == _user.IntensityGoal)
+        if (_user.DateLevelingStarted == null || _user.IntensityProgress == _user.IntensityGoal)
         {
             return false;
         }
@@ -93,7 +152,7 @@ public class UserService : IUserService
             throw new ArgumentException($"{nextSunday} is not sunday");
         }
 
-        var maxProgress = (int?)(nextSunday - _user.DateProgressStarted)?.TotalDays + 1;
+        var maxProgress = (int?)(nextSunday - _user.DateLevelingStarted)?.TotalDays + 1;
         var maxGoal = maxProgress < 7 && maxProgress < _user.IntensityGoal ? maxProgress : _user.IntensityGoal;
         var daysLeft = isPreviousWeek ? 0 : (int)(nextSunday - Today).TotalDays + 1;
 
@@ -103,7 +162,7 @@ public class UserService : IUserService
     private async Task ResetBonsai()
     {
         _user.DateLeveledUp = null;
-        _user.DateProgressStarted = null;
+        _user.DateLevelingStarted = null;
         _user.IntensityProgress = 0;
         _user.BonsaiStage = 0;
         _user.DateBonsaiMaxStageReached = null;
@@ -119,8 +178,13 @@ public class UserService : IUserService
         }
     
         _user.DateLeveledUp = Today;
-        _user.DateProgressStarted ??= Today;
+        _user.DateLevelingStarted ??= Today;
         _user.IntensityProgress++;
+
+        if (Streak > _user.RecordStreak)
+        {
+            _user.RecordStreak = Streak;
+        }
 
         if (_user.BonsaiStage < _user.BonsaiMaxStage)
         {
@@ -146,9 +210,9 @@ public class UserService : IUserService
             return false;
         }
 
-        if (_user.DateProgressStarted?.Date == Today.Date)
+        if (_user.DateLevelingStarted?.Date == Today.Date)
         {
-            _user.DateProgressStarted = null;
+            _user.DateLevelingStarted = null;
         }
 
         _user.DateLeveledUp = null;

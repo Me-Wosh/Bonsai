@@ -1,0 +1,23 @@
+{
+    "en":
+    {
+        "usernameLabel": "Your name",
+        "helloMessage": "Hello",
+        "dateJoined": "Date joined",
+
+        "streak":
+        {
+            "current": "Current streak",
+            "record": "Record streak"
+        },
+
+        "percentageDiagram":
+        {
+            "last30Days": "Last 30 days",
+            "completed": "Completed",
+            "easy": "Easy",
+            "medium": "Med.",
+            "hard": "Hard"
+        }
+    }
+}

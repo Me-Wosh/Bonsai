@@ -48,7 +48,6 @@ public class FileService : IFileService
         }
 
         var json = File.ReadAllText(filePath);
-
         var user = JsonSerializer.Deserialize<User>(json);
 
         return user!;
