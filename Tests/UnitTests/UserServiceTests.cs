@@ -140,14 +140,15 @@ public class UserServiceTests
     }
 
     [Fact]
-    public async Task ResetBonsaiIfGoalNotAchievable_ShouldResetBonsaiAndReturnTrue_IfTodayIsMondayAndPreviousWeekIntensityGoalIsNotAchievable()
+    public async Task ResetBonsaiIfGoalNotAchievable_ShouldResetBonsaiAndReturnTrue_IfPastWeekIntensityGoalIsNotAchievable()
     {
         // Arrange
-        _fakeTimeProvider.SetUtcNow(new DateTime(2024, 10, 21)); // this week monday
+        _fakeTimeProvider.SetUtcNow(new DateTime(2024, 10, 23)); // this week wednesday
 
         _user = new User
         {
             DateLevelingStarted = new DateTime(2024, 10, 14), // last week monday
+            DateLastLeveledUp = new DateTime(2024, 10, 18), // last week friday
             IntensityGoal = 4,
             IntensityProgress = 3,
             BonsaiStage = 3
@@ -256,14 +257,15 @@ public class UserServiceTests
     }
 
     [Fact]
-    public async Task ResetBonsaiIfGoalNotAchievable_ShouldResetIntensityProgressWithoutResettingBonsaiAndReturnFalse_IfTodayIsMonday()
+    public async Task ResetBonsaiIfGoalNotAchievable_ShouldResetIntensityProgressWithoutResettingBonsaiAndReturnFalse_IfItIsNextWeek()
     {
         // Arrange
-        _fakeTimeProvider.SetUtcNow(new DateTime(2024, 10, 21)); // this week monday
+        _fakeTimeProvider.SetUtcNow(new DateTime(2024, 10, 22)); // this week tuesday
 
         _user = new User
         {
             DateLevelingStarted = new DateTime(2024, 10, 18), // last week friday
+            DateLastLeveledUp = new DateTime(2024, 10, 20), // last week sunday
             IntensityGoal = 3,
             IntensityProgress = 3,
             BonsaiStage = 3
@@ -330,7 +332,7 @@ public class UserServiceTests
 
         _user = new User
         {
-            DateLeveledUp = DateTime.Today,
+            DateLastLeveledUp = DateTime.Today,
             BonsaiStage = 1
         };
         
@@ -353,7 +355,7 @@ public class UserServiceTests
 
         _user = new User
         {
-            DateLeveledUp = DateTime.Today,
+            DateLastLeveledUp = DateTime.Today,
             BonsaiStage = 1
         };
         
@@ -363,7 +365,7 @@ public class UserServiceTests
         
         // Assert
         Assert.True(result);
-        Assert.Null(_user.DateLeveledUp);
+        Assert.Null(_user.DateLastLeveledUp);
         Assert.Equal(0, _user.BonsaiStage);
     }
 }

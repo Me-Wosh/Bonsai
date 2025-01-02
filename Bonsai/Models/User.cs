@@ -5,7 +5,7 @@ namespace Bonsai.Models;
 public class User : UserData
 {
     public DateTime DateJoined => DateTime.Today;
-    public DateTime? DateLeveledUp { get; set; }
+    public DateTime? DateLastLeveledUp { get; set; }
     public DateTime? DateLevelingStarted { get; set; }
     public DateTime? DateBonsaiMaxStageReached { get; set; }
     public bool LocationUsageAcknowledged { get; set; }

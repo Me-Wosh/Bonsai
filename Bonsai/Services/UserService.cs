@@ -27,8 +27,9 @@ public class UserService : IUserService
     public int DaysLeft => Today.DayOfWeek == DayOfWeek.Sunday ? 0 : 7 - (int)Today.DayOfWeek;
     public string? Username => _user.Username;
     public string? ProfilePicture => _user.ProfilePicture != null ? Convert.ToBase64String(_user.ProfilePicture) : null;
-    private bool TodayLeveledUp => Today.Date == _user.DateLeveledUp?.Date;
+    private bool TodayLeveledUp => Today.Date == _user.DateLastLeveledUp?.Date;
     private DateTime Today => _timeProvider.GetLocalNow().DateTime;
+    private DateTime NextSunday => Today.AddDays(DaysLeft);
 
     public async Task LoadUser()
     {
@@ -102,9 +103,9 @@ public class UserService : IUserService
 
     public async Task<bool> ResetBonsaiIfGoalNotAchievable()
     {
-        if (Today.DayOfWeek == DayOfWeek.Monday)
+        if (IsNextWeek())
         {
-            if (!IntensityGoalAchievable(Today.AddDays(-1), true))
+            if (!IntensityGoalAchievable(true))
             {
                 await ResetBonsai();
                 return true;
@@ -118,10 +119,8 @@ public class UserService : IUserService
         {
             return false;
         }
-        
-        var nextSunday = Today.AddDays(DaysLeft);
 
-        if (!IntensityGoalAchievable(nextSunday))
+        if (!IntensityGoalAchievable())
         {
             await ResetBonsai();
             return true;
@@ -145,23 +144,32 @@ public class UserService : IUserService
         return false;
     }
 
-    private bool IntensityGoalAchievable(DateTime nextSunday, bool isPreviousWeek = false)
+    private bool IsNextWeek()
     {
-        if (nextSunday.DayOfWeek != DayOfWeek.Sunday)
+        if (_user.DateLastLeveledUp == null)
         {
-            throw new ArgumentException($"{nextSunday} is not sunday");
+            return false;
         }
 
-        var maxProgress = (int?)(nextSunday - _user.DateLevelingStarted)?.TotalDays + 1;
+        var dateLastLeveledUp = _user.DateLastLeveledUp.Value;
+        var daysToSunday = dateLastLeveledUp.DayOfWeek == DayOfWeek.Sunday ? 0 : (int)dateLastLeveledUp.DayOfWeek;
+        var lastLeveledUpSunday = dateLastLeveledUp.AddDays(daysToSunday);
+
+        return (NextSunday - lastLeveledUpSunday).TotalDays >= 1;
+    }
+
+    private bool IntensityGoalAchievable(bool isNextWeek = false)
+    {
+        var maxProgress = (int?)(NextSunday - _user.DateLevelingStarted)?.TotalDays + 1;
         var maxGoal = maxProgress < 7 && maxProgress < _user.IntensityGoal ? maxProgress : _user.IntensityGoal;
-        var daysLeft = isPreviousWeek ? 0 : (int)(nextSunday - Today).TotalDays + 1;
+        var daysLeft = isNextWeek ? 0 : (int)(NextSunday - Today).TotalDays + 1;
 
         return daysLeft >= maxGoal - _user.IntensityProgress;
     }
 
     private async Task ResetBonsai()
     {
-        _user.DateLeveledUp = null;
+        _user.DateLastLeveledUp = null;
         _user.DateLevelingStarted = null;
         _user.IntensityProgress = 0;
         _user.BonsaiStage = 0;
@@ -177,7 +185,7 @@ public class UserService : IUserService
             return false;
         }
     
-        _user.DateLeveledUp = Today;
+        _user.DateLastLeveledUp = Today;
         _user.DateLevelingStarted ??= Today;
         _user.IntensityProgress++;
 
@@ -215,7 +223,7 @@ public class UserService : IUserService
             _user.DateLevelingStarted = null;
         }
 
-        _user.DateLeveledUp = null;
+        _user.DateLastLeveledUp = null;
         _user.IntensityProgress--;
 
         if ((Today - _user.DateBonsaiMaxStageReached)?.TotalDays >= 1)
