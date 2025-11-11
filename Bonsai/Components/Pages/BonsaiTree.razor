@@ -7,23 +7,25 @@
 @inject IWeatherService WeatherService
 
 <div id="container">
-    <div id="streak-container">
-        <img src="./icons/plant_icon.png" />
-
-        <p>@UserService.Streak</p>
-
-        <p id="streak-tooltip">@_pageContents?["en"]!["streakTooltip"]</p>
-    </div>
-
-    <div id="window-section">
+    <div id="top-section">
         <div id="window-container">
             <img id="weather" src="./images/weather/@_weatherImagePath" />
-            <img id="window" src="./images/window.png" />
+            <img src="./images/window.png" />
+        </div>
+
+        <div id="streak-section">
+            <div id="streak-container">
+                <img src="./icons/plant_icon.png" />
+
+                <p>@UserService.Streak</p>
+            </div>
+
+            <p id="streak-tooltip">@_pageContents?["en"]!["streakTooltip"]</p>
         </div>
     </div>
 
-    <div id="tree-section">
-        <p>tree stage: @UserService.BonsaiStage</p>
+    <div id="bottom-section">
+        <img src="./images/bonsai/bonsai_14.png" />
     </div>
 </div>
 
